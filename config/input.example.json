@@ -1,0 +1,26 @@
+{
+  "inputs": {
+    "folds": "../data/restricted/subject_folds.csv",
+    "baseline": "../data/restricted/baseline_features.csv",
+    "cognition": "../data/restricted/cognition.csv",
+    "genotype_roster": "../data/restricted/genotype_roster.csv",
+    "amyloid_pet": "../data/restricted/amyloid_pet.csv",
+    "tabpfn_checkpoint": "../models/licensed/tabpfn-v3-classifier-v3_default.ckpt",
+    "prediction_directory": "../work/prediction",
+    "no_prs_directory": "../work/without_prs",
+    "cn_course_groups": "../work/groups/restricted_local/clinical_CN_index_three_groups_primary.csv",
+    "older_cn_pet": "../work/groups/restricted_local/older_CN_PET.parquet",
+    "all_age_cn_pet": "../work/groups/restricted_local/PET_CN_index_indices_and_course.parquet",
+    "interpretation_directory": "../work/interpretation",
+    "education_directory": "../work/education",
+    "paired_directory": "../work/paired",
+    "genetic_directory": "../work/genetic",
+    "pet_directory": "../work/pet",
+    "cn_course_indices": "../work/groups/restricted_local/clinical_CN_index_indices_and_course.parquet",
+    "prior_targeted_contributions": "../work/interpretation/LOCAL_RESTRICTED/fixed_groups_OOF_contributions.parquet",
+    "current_profile_components": "../work/current_profiles/restricted_local/relative_components_controlled.csv",
+    "profile_join_keys": "../work/current_profiles/restricted_local/private_join_keys.parquet",
+    "source_data_directory": "../private_local/figure_inputs"
+  },
+  "expected_hashes": {}
+}

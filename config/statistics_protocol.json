@@ -1,0 +1,62 @@
+{
+  "primary_endpoint": "first recorded MCI after CN",
+  "secondary_endpoint": "AD dementia after MCI",
+  "horizons_years": [
+    3,
+    5
+  ],
+  "internal_validation_folds": [
+    1,
+    2,
+    3
+  ],
+  "contributions": {
+    "eta": "C+G+R",
+    "C": "five current cognitive main functions",
+    "G": "coefficient times training-standardized PRS",
+    "R": "all remaining terms and intercept",
+    "odds": "exp(C)*exp(G)*exp(R)"
+  },
+  "multiplicity_families": {
+    "first_visit_AP": 28,
+    "all_visit_history_AP": 16,
+    "PRS_increments": 8,
+    "PRS_quintile_C_omnibus": 4,
+    "targeted_contributions": 128,
+    "C_decile_AD_CN": 12,
+    "education": 4
+  },
+  "markers": {
+    "(*)": "nominal P<0.05 and BH q>=0.05",
+    "*": "BH q<0.05",
+    "**": "BH q<0.01",
+    "***": "BH q<0.001"
+  },
+  "C_strata": {
+    "all": 893,
+    "CN": 701,
+    "MCI": 97,
+    "AD": 95,
+    "AD_CN": 796,
+    "C_deciles_defined_in_all": true,
+    "HC3": true,
+    "residual_df_t_intervals": true,
+    "nonestimable_tests_BH_P": 1,
+    "effect": "modeled genetic odds-factor ratio, not clinical AD odds"
+  },
+  "performance_inference": {
+    "percentile_CI_draws": 500,
+    "null_centered_P_draws": 9999,
+    "seed": 42,
+    "resampling": "participant within fold",
+    "intervals_nominal_not_test_inversions": true
+  },
+  "loss_monitoring": {
+    "fits": 24,
+    "epochs_per_fit": 60,
+    "records": 1440,
+    "training": "dropout-off end-epoch unpenalized BCE on fixed IPCW resample",
+    "validation": "normalized capped-IPCW BCE on all eligible known-outcome visits",
+    "checkpoint_selection": false
+  }
+}

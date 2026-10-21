@@ -1,0 +1,75 @@
+{
+  "version": "1.0.0",
+  "clinical_outcomes": {
+    "primary": "CN_MCI",
+    "secondary": "MCI_AD",
+    "horizons_years": [
+      3,
+      5
+    ]
+  },
+  "population": {
+    "ancestry": "European",
+    "prediction_age_upper_exclusive": 85,
+    "minimum_current_domains": 2,
+    "studies": [
+      "ADNI",
+      "NACC",
+      "ROS",
+      "MAP - Rush"
+    ]
+  },
+  "development_folds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "validation_folds": [
+    1,
+    2,
+    3
+  ],
+  "excluded_from_present_analysis": [
+    0
+  ],
+  "external_validation": false,
+  "primary_evaluation": "first eligible validation visit per participant and transition",
+  "seed": 42,
+  "training": {
+    "epochs": 60,
+    "batch_size": 256,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "regularization_coefficient": 0.0001,
+    "gradient_clip": 5,
+    "checkpoint": "final_epoch",
+    "validation_selection": false
+  },
+  "PRS": {
+    "GWAS_Catalog_accession": "GCST90012877",
+    "APOE": "included",
+    "high_interval_inclusive": [
+      0.473704771704382,
+      1.1350529724900473
+    ],
+    "score_weights": "precomputed, unchanged across prognosis models"
+  },
+  "inference": {
+    "percentile_bootstrap_replicates": 500,
+    "AP_null_centred_bootstrap_replicates": 9999,
+    "participant_resampling": "within validation fold",
+    "BH_families": {
+      "first_visit_AP": 28,
+      "all_visit_history_AP": 16,
+      "contributions": 128,
+      "education": 4
+    }
+  },
+  "licensed_tabpfn_checkpoint_sha256": "d0d865d54dfbc524f5703104be90620182dca7e5fb2c16de72e9959ea18f3988"
+}

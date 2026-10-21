@@ -1,0 +1,18 @@
+name: adsp_prs_r
+channels:
+  - conda-forge
+dependencies:
+  - r-base>=4.2
+  - r-data.table
+  - r-dplyr
+  - r-proc
+  - r-matrix
+  - r-remotes
+  - r-devtools
+  - r-bigstatsr
+  - r-bigsnpr
+  - r-bigparallelr
+  - r-survival
+  - r-nlme
+  - r-jsonlite
+  - r-bigreadr

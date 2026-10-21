@@ -1,0 +1,3 @@
+Software license has not yet been selected by the authors for this prepared release.
+No software reuse license is granted by this draft package.
+Third-party software and pretrained weights remain subject to their own terms.

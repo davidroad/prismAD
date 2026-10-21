@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "Please cite the accompanying PRISM-AD manuscript when using this code."
+title: "PRISM-AD quantifies clinical and genetic contributions to cognitive risk prediction"
+type: software
+version: 1.1.0
+date-released: 2026-10-20
+authors:
+  - family-names: Dai
+    given-names: Yulin
+  - family-names: Wood
+    given-names: Cassidy S.
+  - family-names: Jiang
+    given-names: Xiaoqian
+  - family-names: Hsu
+    given-names: Yu-Chun
+    email: Yu-Chun.Hsu@uth.tmc.edu
+abstract: "Code for cognitive prognosis and clinical/genetic model contributions. Controlled cohort data and individual derivatives are not distributed."
+repository-code: "https://github.com/davidroad/prismAD"
