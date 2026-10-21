@@ -44,6 +44,9 @@ reconstruction inputs. Figure and statistical commands require separately
 authorized local inputs. Code availability does not establish a fully executable
 raw-data reproduction or grant access to the controlled datasets.
 
+## Code navigation
+See [CODE_INDEX.md](docs/CODE_INDEX.md) for the module-to-workflow mapping.
+
 ## Release check
 Before distributing a directory or committing staged changes:
 
