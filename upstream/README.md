@@ -1,3 +1,9 @@
+# Corrected PRS construction
+
+The current scripts use the matched LD variant count for LDSC normalization and the type-7 99.9th percentile of 8/SE^2 on retained effects for effective information. This is empirical information on the supplied meta-analysis scale, not a verified literal headcount. Discovery overlap remains unresolved.
+
+Use a new external private PRS_OUTPUT_DIR. Incompatible LDSC/auto caches trigger an error. Preserve historical caches. All weights, scores, genotype objects and chain outputs remain private.
+
 # Optional upstream PRS construction
 
 The two R files retain the existing all-sample LDpred2-auto implementation. They start from **QC-processed European-ancestry PLINK genotypes**, not raw sequencing reads.
@@ -8,6 +14,6 @@ Dependencies include bigsnpr, bigstatsr, bigparallelr, bigreadr, data.table and 
 
 LD is estimated from the target genotypes. LDpred2-auto does not use clinical phenotype for fitting; scores include APOE. Preserve allele matching, variant order, chain selection and RNG settings.
 
-Raw VCF QC, sample QC, unrelatedness and ancestry inference precede these scripts. Verified clinical reconstruction begins from processed PRS/roster and PHC inputs. This release does not claim a tested restart from raw VCFs. The 26,390-person PRS calculation and full prognostic training were not rerun.
+Raw VCF QC, sample QC, unrelatedness and ancestry inference precede these scripts. Verified clinical reconstruction begins from processed PRS/roster and PHC inputs. This release does not claim a tested restart from raw VCFs. PRS scoring and the complete downstream model grid were rerun privately using the corrected specification.
 
 R backing objects can contain machine-specific paths and large matrices. Use a new output directory rather than moving cached pointers. No genotypes, individual scores, fitted weights or reference-data rights are redistributed.

@@ -1,55 +1,79 @@
-# Execution order
-Commands below assume the code directory as the working directory. Configure authorized local
-paths in config/input.local.json. Outputs containing participant information remain
-private and are excluded from the distributed package.
+# Corrected execution graph
+Configure authorized inputs outside the checkout in a private JSON copied from
+config/input.example.json. Receiving code does not grant data access. Use a new
+external work directory, never a public checkout or distribution folder.
 
-## Original analysis workflow
-    python -m prism_ad features --config config/input.local.json --output work/prediction
-    python -m prism_ad groups --config config/input.local.json --output work/groups
-    python -m prism_ad train --config config/input.local.json --output work/preflight --preflight
-    python -m prism_ad train --config config/input.local.json --output work/prediction --task CN_MCI
-    python -m prism_ad train --config config/input.local.json --output work/prediction --task MCI_AD
-    python -m prism_ad train --config config/input.local.json --output work/without_prs --features work/prediction --task CN_MCI --without-prs
-    python -m prism_ad train --config config/input.local.json --output work/without_prs --features work/prediction --task MCI_AD --without-prs
-    python -m prism_ad metrics --config config/input.local.json --output work/prediction --bootstrap
-    python -m prism_ad paired-inference --config config/input.local.json --output work/paired
-    python -m prism_ad genetic-comparison --config config/input.local.json --output work/genetic
-    python -m prism_ad interpret --config config/input.local.json --output work/interpretation
-    python -m prism_ad education --config config/input.local.json --output work/education
-    python -m prism_ad pet --config config/input.local.json --output work/pet
+## Input score version
+Baseline and genotype-roster inputs must contain the same corrected PRS.
+The upstream R scripts estimate SE-derived effective information and match the
+LDSC denominator to the LD variants. Use a new PRS_OUTPUT_DIR. Existing
+unregistered LDSC/auto caches are rejected and historical files are preserved.
+The reconstruction starts from post-QC genotypes, not raw VCFs.
 
-Do not run GPU tasks simultaneously unless separate devices were allocated.
-The original grid contains 96 +PRS fits and 48 clinical-only fits. Three validation
-folds are held out in turn; the remaining eight of folds 1–9 train each model.
-Fold 0 was used in earlier development and is excluded here.
-Seven variants share the same IPCW resample. Native-weighted HGB instead uses
-all known-outcome training visits and their weights directly.
+## Full downstream workflow
+The Local collaborator package provides scripts/reproduce_corrected.py as the
+complete orchestration entry point. For manual execution, keep this exact graph
+and point every configuration role to the corresponding fresh output:
 
-## Current contribution and inference extensions
-    python -m prism_ad profile-replay --config config/input.local.json --output work/current_profiles
-    python -m prism_ad profile-export --config config/input.local.json --output work/profile_aggregates
-    python -m prism_ad current-statistics --config config/input.local.json --output work/current_statistics
-    python -m prism_ad cognitive-strata --config config/input.local.json --output work/cognitive_strata
+1. features -> work/prediction; groups -> work/groups.
+2. train --preflight -> work/prediction.
+3. train both clinical tasks -> work/prediction.
+4. Create work/no_prs/LOCAL_RESTRICTED and copy the successful same-environment
+   PREFLIGHT.json to work/no_prs, or run its preflight.
+5. train --without-prs --features work/prediction for both tasks -> work/no_prs.
+6. metrics --bootstrap -> work/prediction.
+7. paired-inference -> work/paired; genetic-comparison -> work/genetic.
+8. interpret -> work/interpretation; education -> work/education; pet -> work/pet.
+9. profile-replay -> work/profiles.
+10. export -> work/SourceData; profile-export -> work/SourceData/tables.
+11. current-statistics -> work/statistics; cognitive-strata -> work/cognitive_strata.
+12. figure-inputs -> work/SourceData.
+13. learning-curve-replay -> work/optimization. Copy its learning_curves.csv and
+    passing replay_verification.json into work/SourceData/optimization.
+14. render --figure all --source-data work/SourceData --output work/Figures.
 
-The profile replay reads original checkpoints and checks saved predictions/ledgers,
-including the previous 688-person overlap. It writes a protected 893-person
-component table and private join keys. Profile-export releases aggregate summaries
-only. Current-statistics computes the eight PRS and four PRS-quintile tests.
-Cognitive-strata computes the pooled, ten within-decile and expanded HC3 contrasts,
-retaining all twelve correction slots. These stages do not fit prognostic models.
-Point the configuration to the earlier stage outputs before running downstream steps.
+All analysis commands except render receive --config and --output. Select
+CN_MCI or MCI_AD with train --task. Outcomes and clinical inputs are constructed
+before any horizon-specific model is fitted. The full graph includes the
+matched clinical-only controls. Do not mix corrected PRS with legacy forecasts.
 
-## Retrospective optimization monitoring
-    python -m prism_ad learning-curve-replay --config config/input.local.json --output work/loss_replay
+## GPU and diagnostic settings
+Allocate one full training worker per GPU. CUDA_VISIBLE_DEVICES selects physical
+devices, while a worker uses its logical cuda:0. Retain the recorded environment,
+seeds, preprocessing and 60 fixed epochs. The three participant-validation folds
+are excluded from their respective training rounds. Earlier development fold 0
+is excluded from these analyses.
 
-This optional command uses the original data/order/resamples/seeds and checkpoints,
-a compatible CUDA/Python/Torch environment and the original 60-epoch optimizer.
-It stops unless every original online loss, final parameter and prediction matches.
-It writes diagnostics to the chosen output directory and does not select epochs
-or replace original checkpoint files. It was not rerun during this packaging task.
+Loss replay can be split with PRISM_AD_DIAGNOSTIC_TASK. Keep its output in
+work/optimization/CN_MCI and work/optimization/MCI_AD. Concatenate both loss CSVs
+and combine the two passing run_audits lists before rendering the final loss
+figure. Replay stops unless losses, final parameters and probabilities match.
+The monitoring does not select a different checkpoint.
 
-## Figures from authorized local analysis outputs
-    python -m prism_ad render --figure all --source-data ../private_local/figure_inputs --output ../work/figures
+## Protected outputs
+The run creates participant records, individual scores/contributions, model
+weights, empirical summaries and logs. All remain private. Public and Local
+distributions contain none of these outputs. Private plotting JSON records, if
+generated, are also controlled derivatives and cannot be bundled as code.
 
-Fresh output directories avoid overwriting a prior execution. This command needs
-no additional model fitting when authorized aggregate inputs are staged. These inputs are not distributed here.
+
+## Complete corrected workflow
+Authorized collaborators can use the sibling Local package's
+scripts/reproduce_corrected.py to run the complete graph in a new external private
+directory. Baseline and genotype-roster inputs must contain the corrected PRS.
+Do not point these inputs to historical prediction directories.
+
+After export and profile-export, run current-statistics and cognitive-strata,
+then figure-inputs. The fixed graph uses work/prediction, work/no_prs,
+work/interpretation, work/education, work/paired, work/genetic, work/pet,
+work/profiles, work/statistics, work/cognitive_strata and work/SourceData.
+Point every configuration role to the new outputs. figure-inputs assembles the
+private plotting summaries from this graph.
+
+The no-PRS output needs its own PREFLIGHT.json and LOCAL_RESTRICTED folder.
+Run its preflight or copy a successful identical-environment preflight receipt.
+
+Loss replay can be split by setting PRISM_AD_DIAGNOSTIC_TASK to one task and
+CUDA_VISIBLE_DEVICES to its allocated GPU. Combine both passing audit lists and
+loss tables before rendering Supplementary Figure 3. This affects orchestration,
+not the model, optimizer, epoch selection or scientific settings.

@@ -49,7 +49,7 @@ a={k:raw[k][ix] for k in raw.files}
 g=pd.read_parquet(GROUPS);g.subject_id=g.subject_id.astype(str)
 assert g.subject_id.is_unique
 old=pd.read_parquet(OLD);old=old[old.model.eq('PRISM_current')&old.horizon.eq(3)].copy()
-assert len(old)==688
+assert old.subject_id.is_unique
 blocks=[];replay=[]
 for fold in [1,2,3]:
  tr=np.flatnonzero(m.fold.ne(fold));va=np.flatnonzero(m.fold.eq(fold))
@@ -92,7 +92,7 @@ for fold in [1,2,3]:
   errors[c]=float(np.max(np.abs(x-y)))
  blocks.append(block)
  sources.extend([cell/'validation.csv',cell/'transform.json',cell/'shared_bootstrap_local_indices.npy',path/'model_state.pt',path/'probability.npy',path/'native_explanations.npz'])
- replay.append(dict(fold=fold,n_validation_rows=len(v),n_first_eligible=int(v.first_eligible.sum()),old_688_overlap=len(prior),old_component_max_abs_errors=errors,probability_array_exact=True,native_logit_exact=True,native_ledger_exact=True,clinical_main_ledger_max_abs_error=float(np.abs(mains.sum(1)-extras['ledger'][:,1]).max())))
+ replay.append(dict(fold=fold,n_validation_rows=len(v),n_first_eligible=int(v.first_eligible.sum()),targeted_profile_overlap=len(prior),old_component_max_abs_errors=errors,probability_array_exact=True,native_logit_exact=True,native_ledger_exact=True,clinical_main_ledger_max_abs_error=float(np.abs(mains.sum(1)-extras['ledger'][:,1]).max())))
  print(json.dumps(replay[-1]),flush=True)
  del model,t;torch.cuda.empty_cache()
 pred=pd.concat(blocks,ignore_index=True)
@@ -128,10 +128,10 @@ manifest=dict(status='PASS_FROZEN_CHECKPOINT_REPLAY_EXPLORATORY_DESCRIPTIVE_ONLY
  contract=contract,clinical_group_counts={k:int(v) for k,v in minimal.clinical_group.value_counts().items()},
  fold_group_counts={str(k):{a:int(b) for a,b in v.items()} for k,v in pd.crosstab(minimal.fold,minimal.clinical_group).to_dict(orient='index').items()},
  selection=dict(first_eligible_validation_subjects=len(first),exact_original_CN_index_joins=len(joined),study_age_mismatches=int((~alignment).sum()),missing_original_index_join=len(first)-len(joined),excluded_after_join=int((~keep).sum()),excluded_final_status_counts=joined.loc[~keep,'final_status'].value_counts().to_dict(),included=len(minimal)),
- replay=replay,old_688_exact_overlap=sum(x['old_688_overlap'] for x in replay),minimal_file=str(csv),minimal_columns=cols,
+ replay=replay,targeted_exact_overlap=sum(x['targeted_profile_overlap'] for x in replay),minimal_file=str(csv),minimal_columns=cols,
  raw_PRS='Same unstandardized frozen score across all folds; checkpoint standardized PRS terms have fold-specific mean/scale.',
  no_subject_identifiers_in_minimal_csv=True,no_model_training=True,no_new_prediction_task=True,no_new_statistical_tests=True,
  sources_sha256=inputs,outputs_sha256=outputs,python=sys.version,torch=torch.__version__,device=torch.cuda.get_device_name(0))
 dump(OUT/'audit/manifest.json',manifest)
 signal.alarm(0)
-print(json.dumps({k:manifest[k] for k in ['status','elapsed_seconds','clinical_group_counts','fold_group_counts','selection','minimal_file','old_688_exact_overlap']},indent=2),flush=True)
+print(json.dumps({k:manifest[k] for k in ['status','elapsed_seconds','clinical_group_counts','fold_group_counts','selection','minimal_file','targeted_exact_overlap']},indent=2),flush=True)

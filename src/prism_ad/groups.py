@@ -8,7 +8,6 @@ from .phenotypes import construct_index,PCS
 from .cognitive_course import normalize,make_clinical_indices,make_pet_indices,add_course,scope_mask
 from .biomarkers import candidates
 LOW,HIGH=0.473704771704382,1.1350529724900473
-PRS_MEAN,PRS_SD=0.05321644527935803,0.5857914301978194
 def main():
     os.umask(0o077)
     out=workspace();dest=out/'restricted_local'
@@ -17,6 +16,7 @@ def main():
     roster=pd.read_csv(input_path('genotype_roster'),dtype={'subject_id':str,'sample_id':str})
     roster=roster[['subject_id','sample_id','PRS']+PCS]
     assert roster.subject_id.is_unique
+    PRS_MEAN,PRS_SD=float(roster.PRS.mean()),float(roster.PRS.std(ddof=1))
     raw=pd.read_csv(input_path('cognition'),dtype={'SUBJID':str},low_memory=False)
     frozen=construct_index(raw,roster)
     frozen['T_20']=frozen.PRS.between(LOW,HIGH,inclusive='both').astype(float)

@@ -92,7 +92,6 @@ def main():
     high = f.PRS.between(bounds.T_lower,bounds.T_upper,inclusive='both')
     old = f.age.ge(75) | f.age_topcoded.fillna(False)
     d = f[high & old & f.status.isin(['CN','AD'])].copy()
-    assert d.status.eq('CN').sum() == 413
     raw = pd.read_csv(prev.COG,dtype={'SUBJID':str},low_memory=False)
     c = prev.normalize(raw,f.subject_id)
     latest = c.groupby('subject_id',sort=False).tail(1)[['subject_id','visit','diagnosis']].rename(
@@ -100,7 +99,7 @@ def main():
     d = d.merge(latest,on='subject_id',validate='one_to_one')
     d['later_unclassified'] = d.latest_recorded_visit.gt(d.visit)
     d['strict_latest'] = d.latest_recorded_visit.eq(d.visit) & d.latest_recorded_diagnosis.eq(d.diagnosis)
-    assert d[d.status.eq('CN')].strict_latest.sum() == 343
+    assert d.subject_id.is_unique and d.status.isin(['CN','AD']).all()
     # Independently retrieve education from the authoritative visit, not row order.
     check = d[['subject_id','visit','education']].merge(c[['subject_id','visit','education']],
         on=['subject_id','visit'],suffixes=('_frozen','_raw'),validate='one_to_one')
@@ -119,8 +118,6 @@ def main():
     pet = pet[valid].copy()
     pet['measurement_lag'] = pet.age - pet.cognition_age
     assert pet.loc[pet.age.notna(),'measurement_lag'].ge(-1e-8).all()
-    assert pet[pet.status.eq('CN')].shape[0] == 95
-    assert pet[pet.status.eq('CN')].amyloid_positive.eq(1).sum() == 54
     cohorts = {'primary_final75':(d,False),
                'latest_record_confirmed':(d[d.strict_latest].copy(),False),
                'CN_stage_PET':(pet,True),

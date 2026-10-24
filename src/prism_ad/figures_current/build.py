@@ -13,7 +13,8 @@ def _capture(name):
     return captured
 
 def _letters(fig,number):
-    layouts=json.loads((Path(os.environ['PRISM_AD_SOURCE_DATA'])/'plotting/panel_layout.json').read_text())
+    from .panel_layout import LAYOUTS
+    layouts=LAYOUTS
     layout=layouts[str(number)];w,h=fig.get_size_inches()*25.4
     for record in layout.get('label_adjustments',[]):
         t=next(t for t in fig.texts if t.get_text()==record['text'])
@@ -30,29 +31,29 @@ def build(figure):
     if figure=='2':
         cap=_capture('performance');fig=cap['fig']
         annotations=cap['receipt']['significance_annotations']
-        texts=[t for t in fig.axes[1].texts if t.get_text()in ['*','**','***']]
-        for t,r in zip(texts,[r for r in annotations if r['label']]):
-            t.set_text('***'if r['q']<.001 else'**'if r['q']<.01 else'*')
         tests=pd.read_csv(data/'plotting/Figure2_PRS_increment_tests.csv')
         for r in tests.itertuples():
-            if r.p<.05 and r.q>=.05:
-                assert r.metric=='weighted_AUROC'
+            marker='***'if r.q<.001 else'**'if r.q<.01 else'*'if r.q<.05 else'(*)'if r.p<.05 else''
+            if marker:
                 i=[('CN_MCI',3),('CN_MCI',5),('MCI_AD',3),('MCI_AD',5)].index((r.task,r.horizon))
-                fig.axes[2].text(.044,i,'(*)',ha='center',va='center',fontsize=7,color='#24313B',clip_on=False)
+                axis=fig.axes[2 if r.metric=='weighted_AUROC'else 3]
+                axis.text(axis.get_xlim()[1]+.004,i,marker,ha='left',va='center',fontsize=7,color='#24313B',clip_on=False)
         return fig,common.geometry(fig)
     if figure=='3':
         cap=_capture('overall');fig=cap['fig'];_letters(fig,3)
+        tests=pd.read_csv(data/'plotting/Figure3_cognitive_quintile_omnibus_tests.csv')
+        for i,group in enumerate(['All','CN','MCI','AD']):
+            row=tests[tests.group.eq(group)].iloc[0]
+            marker='***'if row.q<.001 else'**'if row.q<.01 else'*'if row.q<.05 else'(*)'if row.p<.05 else''
+            if marker:fig.axes[i].text(.97,.94,marker,transform=fig.axes[i].transAxes,ha='right',va='top',fontsize=8)
         return fig,common.geometry(fig)
     if figure=='4':
         cap=_capture('contrasts');fig=cap['fig'];_letters(fig,4)
-        for r in cap['receipt']['significance_annotations']:
-            if r['p']<.05 and r['q']>=.05:
-                assert(r['panel'],r['component'],r['horizon'])==('a','risk_logit',3)
-                fig.axes[0].text(r['ci_high']+.045,3.45-.16,'(*)',fontsize=7,ha='left',va='center',color='#24313B')
+        # The native contrast renderer annotates current q/P values.
         return fig,common.geometry(fig)
     if figure=='5':
-        from ..plot_records import build as from_records
-        fig=from_records(data/'plotting/Figure5_plot_records.json')
+        from .figure5_native import build as updated_figure5
+        fig=updated_figure5()
         return fig,common.geometry(fig)
     if figure=='S1':
         from ..age_figure import plot
@@ -63,10 +64,14 @@ def build(figure):
         for t in list(fig.texts):
             if t.get_text().startswith('Difference: phenotype'):t.remove()
         tests=pd.read_csv(data/'plotting/Figure2_PRS_increment_tests.csv')
-        for task,h,axis,y in [('CN_MCI',5,0,.16),('MCI_AD',3,2,-.16)]:
-            r=tests[(tests.task==task)&(tests.horizon==h)&(tests.metric=='weighted_AUROC')].iloc[0]
-            assert r.p<.05 and r.q>=.05
-            fig.axes[axis].text(r.ci_high_original500+.0015,y,'(*)',fontsize=7,ha='left',va='center',color='#202124',clip_on=False)
+        for r in tests.itertuples():
+            marker='***'if r.q<.001 else'**'if r.q<.01 else'*'if r.q<.05 else'(*)'if r.p<.05 else''
+            if marker:
+                axis=0 if r.task=='CN_MCI'else 2
+                metric_offset=0 if r.metric=='weighted_AUROC'else 1
+                axis+=metric_offset
+                y=(-.16 if r.horizon==3 else .16)
+                fig.axes[axis].text(r.ci_high_original500+.0015,y,marker,fontsize=7,ha='left',va='center',color='#202124',clip_on=False)
         return fig,common.geometry(fig)
     if figure=='S3':
         from .learning_curves import build as losses

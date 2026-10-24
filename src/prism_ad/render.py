@@ -30,9 +30,9 @@ def render(figure,source,output):
         versions[name]=importlib.metadata.version(name)
     record=dict(figure=stem,python=platform.python_version(),versions=versions,
         elapsed_seconds=time.monotonic()-started,geometry=geometry,
-        source_sha256={str(p.relative_to(source)):_sha(p)for sub in ['plotting','optimization']for p in sorted((Path(source)/sub).glob('*'))if p.is_file()},
+        source_sha256={str(p.relative_to(source)):_sha(p)for sub in ['plotting','optimization','tables']for p in sorted((Path(source)/sub).glob('*'))if p.is_file()},
         code_sha256={str(p.relative_to(Path(__file__).parent)):_sha(p)for p in sorted(Path(__file__).parent.rglob('*.py'))},
         output_sha256={p.name:_sha(p)for p in sorted(out.iterdir())if p.suffix in ['.pdf','.svg','.png']},
-        scope='Released plotting metrics/coordinates to current figure. No new fitting or inferential testing.')
+        scope='Authorized private plotting inputs to publication figures. No model fitting or inferential testing in this rendering step; empirical inputs are not distributed.')
     (out/'execution.json').write_text(json.dumps(record,indent=2)+'\n')
     print(json.dumps(dict(figure=stem,output=str(out),geometry=geometry)))

@@ -22,7 +22,7 @@ sty=importlib.util.module_from_spec(sp);sp.loader.exec_module(sty)
 sty.apply_figure_style(font='Nimbus Sans',sizes=(8,7,6.5),grid=False)
 plt.rcParams.update({'savefig.bbox':None,'svg.fonttype':'none','svg.hashsalt':'prism-relative-components-20261017','pdf.fonttype':42,'figure.facecolor':'white','savefig.facecolor':'white','text.color':'#24313B','axes.labelcolor':'#24313B','axes.edgecolor':'#65717E','xtick.color':'#65717E','ytick.color':'#24313B','axes.labelpad':4,'xtick.major.pad':2,'ytick.major.pad':2})
 C=dict(ink='#24313B',muted='#65717E',cognition='#D8892B',prs='#7656A4',prism='#007F79',line='#D2DADD')
-GROUPS=[('All','All participants'),('CN','Last classified CN'),('MCI','Last classified MCI'),('AD','Later recorded AD')]
+GROUPS=[('All','All participants'),('CN','CN at last diagnosis'),('MCI','MCI at last diagnosis'),('AD','Later recorded AD')]
 def save(fig,name):pass
 
 def txt(fig,x,y,s,sz=8,ha='left',col='ink',rotation=0,weight='normal'):

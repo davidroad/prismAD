@@ -27,7 +27,7 @@ for task in ['CN_MCI','MCI_AD']:
    cell=f'{task}/fold{fold}_h{horizon}';p=Path(cfg['prediction_directory'])/'LOCAL_RESTRICTED'/cell;n=Path(cfg['no_prs_directory'])/'LOCAL_RESTRICTED'/cell
    m=pd.read_csv(track(p/'validation.csv'),dtype={'subject_id':str});other=pd.read_csv(track(n/'validation.csv'),dtype={'subject_id':str})
    pd.testing.assert_frame_equal(m,other,check_exact=False,atol=1e-12,rtol=1e-12)
-   pp=p/'PRISM_current/probability.npy';nn=n/'PRISM/probability.npy'
+   pp=p/'PRISM_current/probability.npy';nn=n/'PRISM_current/probability.npy'
    assert not (pp.parent/'seeded_inference_correction/probability.npy').exists()
    a=np.load(track(pp));b=np.load(track(nn));assert len(a)==len(b)==len(m) and m.fold.eq(fold).all()
    keep=m.first_eligible.to_numpy(bool);metas.append(m.loc[keep]);plus.append(a[keep]);minus.append(b[keep])

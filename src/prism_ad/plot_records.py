@@ -134,7 +134,7 @@ def build(path):
     from .figures_current.style import apply_figure_style
     apply_figure_style(font='Nimbus Sans',sizes=(9,8,7),grid=False)
     plt.rcParams.update({'savefig.bbox':None,'svg.fonttype':'none','pdf.fonttype':42})
-    data=json.loads(Path(path).read_text())
+    data=path if isinstance(path,dict)else json.loads(Path(path).read_text())
     assert data['schema_version']==1 and len(data['axes'])==11
     fig=plt.figure(figsize=data['figure_inches'],dpi=data['figure_dpi'],facecolor=data['facecolor'])
     for spec in data['axes']:

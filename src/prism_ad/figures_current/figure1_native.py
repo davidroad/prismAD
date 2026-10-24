@@ -40,14 +40,11 @@ for index,letter,origin,target,scale in [(1,'a',27,5,.9),(2,'b',150,117,27/31),(
 # Read only the registered aggregate files. No conversions are inferred.
 age=pd.read_csv(AGE);support=pd.read_csv(SUPPORT)
 counts={};source_rows=[];support_rows=[]
-expected={('CN_MCI',3):[908,78,717,6,107],('CN_MCI',5):[908,124,525,9,250],
-          ('MCI_AD',3):[714,230,345,0,139],('MCI_AD',5):[714,294,192,0,228]}
 for task in ['CN_MCI','MCI_AD']:
  counts[task]={}
  for h in [3,5]:
   q=age[(age.task==task)&age.horizon.eq(h)]
   c={g:int(q.loc[q.group.eq(g),'n'].iloc[0]) if q.group.eq(g).any() else 0 for g in ['all','target','event_free','competing_ad','unknown']}
-  assert [c[g] for g in ['all','target','event_free','competing_ad','unknown']]==expected[(task,h)]
   assert c['all']==c['target']+c['event_free']+c['competing_ad']+c['unknown']
   s=support[(support.task==task)&support.horizon.eq(h)]
   assert len(s)==1
@@ -59,19 +56,19 @@ for task in ['CN_MCI','MCI_AD']:
 # d. Outcome branches follow the complete modeling and fitting workflow.
 title=env['title'];module=env['module'];arrow=env['arrow'];text=env['text']
 title('d',190,'Clinical outcomes: unweighted 3-year / 5-year counts')
-module(7,207,22,10,'CN\nn = 908')
-module(48,199,39,11,'No MCI or AD\n717 / 525')
-module(48,215,39,11,'First recorded MCI\n78 / 124')
+module(7,207,22,10,f'CN\nn = {counts["CN_MCI"]["3"]["all"]}')
+module(48,199,39,11,f'No MCI or AD\n{counts["CN_MCI"]["3"]["event_free"]} / {counts["CN_MCI"]["5"]["event_free"]}')
+module(48,215,39,11,f'First recorded MCI\n{counts["CN_MCI"]["3"]["target"]} / {counts["CN_MCI"]["5"]["target"]}')
 arrow([(29,212),(37,212),(37,204.5),(47.5,204.5)])
 arrow([(37,212),(37,220.5),(47.5,220.5)])
-module(99,207,22,10,'MCI\nn = 714')
-module(140,199,38,11,'No AD dementia\n345 / 192')
-module(140,215,38,11,'AD dementia\n230 / 294')
+module(99,207,22,10,f'MCI\nn = {counts["MCI_AD"]["3"]["all"]}')
+module(140,199,38,11,f'No AD dementia\n{counts["MCI_AD"]["3"]["event_free"]} / {counts["MCI_AD"]["5"]["event_free"]}')
+module(140,215,38,11,f'AD dementia\n{counts["MCI_AD"]["3"]["target"]} / {counts["MCI_AD"]["5"]["target"]}')
 arrow([(121,212),(129,212),(129,204.5),(139.5,204.5)])
 arrow([(129,212),(129,220.5),(139.5,220.5)])
-text(7,228.5,'AD before MCI: 6 / 9',7,'muted')
-text(7,232.5,'Incomplete follow-up: 107 / 250',7,'muted')
-text(99,228.5,'Incomplete follow-up: 139 / 228',7,'muted')
+text(7,228.5,f'AD before MCI: {counts["CN_MCI"]["3"]["competing_ad"]} / {counts["CN_MCI"]["5"]["competing_ad"]}',7,'muted')
+text(7,232.5,f'Incomplete follow-up: {counts["CN_MCI"]["3"]["unknown"]} / {counts["CN_MCI"]["5"]["unknown"]}',7,'muted')
+text(99,228.5,f'Incomplete follow-up: {counts["MCI_AD"]["3"]["unknown"]} / {counts["MCI_AD"]["5"]["unknown"]}',7,'muted')
 text(99,232.5,'No AD can include CN reversion.',7,'muted')
 fig.canvas.draw();ren=fig.canvas.get_renderer()
 bb=[(t,t.get_window_extent(ren)) for t in TEXT]

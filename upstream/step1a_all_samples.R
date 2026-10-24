@@ -1,3 +1,4 @@
+Sys.umask("0077")
 # =============================================================================
 # Step 1a: LDpred2-auto PRS Computation — Alzheimer's Disease
 #
@@ -10,8 +11,8 @@
 #     (not HapMap3+ precomputed)
 #   - Two LD matrices built: corr (from Gipt, for LDpred2-auto),
 #     corr_o (from G_sub, for LDSC h2 estimation)
-#   - ld_size in snp_ldsc uses n_hm3 (total HapMap3+ variants) for correct
-#     genome-wide LD normalization — NOT length(matched variants)
+#   - LDSC ld_size equals the number of variants represented by its LD scores.
+#     n_hm3 is the original map size and is not an LDSC denominator.
 #
 # Scientific caveats:
 #   - snp_cor size=3/1000 means LD window = 3 cM. Standard for LDpred2.
@@ -82,6 +83,26 @@ OUT_DIR         <- Sys.getenv("PRS_OUTPUT_DIR", unset="")
 OUT_PREFIX     <- file.path(OUT_DIR, "ADSP_AD_PRS_step1a_all_samples")
 NCORES         <- as.integer(Sys.getenv("PRS_NCORES", "40"))
 
+
+required_env <- c("PRS_OUTPUT_DIR")
+if (any(!nzchar(Sys.getenv(required_env))))
+  stop("Set PRS_OUTPUT_DIR to a new external private directory before running.")
+argv_file <- sub("^--file=", "", commandArgs(FALSE)[grepl("^--file=",commandArgs(FALSE))])
+if (length(argv_file)==1L) {
+  code_root <- dirname(dirname(normalizePath(argv_file,mustWork=TRUE)))
+  forbidden <- code_root
+  if (basename(dirname(code_root)) %in% c("PRISM-AD_Public","PRISM-AD_Local"))
+    forbidden <- c(forbidden,dirname(code_root))
+  candidate <- normalizePath(OUT_DIR,mustWork=FALSE)
+  if (any(vapply(forbidden,function(x)candidate==x || startsWith(candidate,paste0(x,"/")),logical(1))))
+    stop("PRS outputs must remain outside the public checkout and distribution packages.")
+}
+
+if ((file.exists(file.path(OUT_DIR,"ldsc_results.rds")) ||
+     file.exists(file.path(OUT_DIR,"multi_auto_step1a.rds"))) &&
+    !file.exists(file.path(OUT_DIR,"PRS_parameter_fingerprint.rds")))
+  stop("Unregistered historical LDSC/auto caches detected. Preserve them and choose a new private output.")
+
 dir.create(TMP_DIR, recursive = TRUE, showWarnings = FALSE)
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 
@@ -102,7 +123,7 @@ log_step("================================================")
 #   Gipt    — mean-imputed genotype subset (FBM, same object as G_sub)
 #   POS2    — genetic positions (cM) for matched variants, same order as df_beta
 #   fam     — sample table for FID/IID output labeling
-#   n_hm3   — total HapMap3+ variants for correct snp_ldsc ld_size
+#   n_hm3   — original HapMap3+ map size for provenance only
 # =============================================================================
 
 log_step("Step 1: Loading prepared data from Step Zero...")
@@ -113,6 +134,9 @@ if (!file.exists(INPUT_RDATA))
        "\nRun Step Zero first to generate prepared data.")
 
 load(INPUT_RDATA)
+Gipt$is_read_only <- TRUE
+G_sub$is_read_only <- TRUE
+stopifnot(Gipt$is_read_only,G_sub$is_read_only)
 
 # Validate all required objects are present
 required <- c("df_beta", "G_sub", "Gipt", "POS2", "fam", "n_hm3")
@@ -471,10 +495,26 @@ if (cache_complete) {
   step_time(t0)
 }
 
+# Re-estimate after the final variance filter, on the supplied meta-analysis scale.
+stopifnot(nrow(df_beta)==length(ld_o), nrow(corr)==length(ld_o),
+          ncol(corr)==length(ld_o), all(is.finite(df_beta$beta_se)), all(df_beta$beta_se>0))
+df_beta$n_eff <- unname(quantile(8 / df_beta$beta_se^2, .999, type=7))
+# Cached LDSC/auto objects from another denominator or N must never be reused.
+fingerprint <- list(version="matched_LD_SE_N_v1", N_eff=df_beta$n_eff[1],
+                    ld_size=length(ld_o), beta=df_beta$beta, beta_se=df_beta$beta_se,
+                    variant_ids=df_beta[["_NUM_ID_"]], ld_scores=ld_o)
+fingerprint_file <- file.path(OUT_DIR,"PRS_parameter_fingerprint.rds")
+if (file.exists(LDSC_CACHE) || file.exists(MULTI_AUTO_CACHE)) {
+  if (!file.exists(fingerprint_file) ||
+      !identical(readRDS(fingerprint_file),fingerprint))
+    stop("Existing LDSC/auto caches have no matching parameter fingerprint. Use a new PRS_OUTPUT_DIR; preserve historical caches.")
+}
+saveRDS(fingerprint,fingerprint_file)
+
 # =============================================================================
 # Step 4: Estimate heritability via LD Score Regression
 #
-# ld_size = n_hm3 (total HapMap3+ variants, ~1.44M) — NOT length(ld_o).
+# ld_size is the matched LD reference size, equal to length(ld_o).
 # Using matched-variant count underestimates genome-wide LD and biases h2.
 # =============================================================================
 
@@ -500,7 +540,7 @@ if (file.exists(LDSC_CACHE)) {
              "\n    chi2 non-finite:", sum(!is.finite(chi2)))
 
   log_step("  LDSC input: n_variants =", sum(ldsc_ok),
-           "| ld_size (n_hm3) =", n_hm3,
+           "| ld_size (matched LD) =", length(ld_o),
            "| sample_size =", round(df_beta$n_eff[1]))
   log_step("  chi2 summary: mean =", round(mean(chi2[ldsc_ok]), 3),
            "| median =", round(median(chi2[ldsc_ok]), 3),
@@ -508,7 +548,7 @@ if (file.exists(LDSC_CACHE)) {
 
   ldsc <- snp_ldsc(
     ld_score    = ld_o[ldsc_ok],
-    ld_size     = n_hm3,           # total HapMap3+ variants — correct normalization
+    ld_size     = length(ld_o),   # same variant universe as the LD-score sums
     chi2        = chi2[ldsc_ok],
     sample_size = df_beta$n_eff[1]
   )

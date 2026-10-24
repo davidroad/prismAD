@@ -1,17 +1,16 @@
 # Reproducibility scope
-This is a code and input-contract release without controlled data or real-data
-reconstruction objects. It includes model implementations, outcome/feature
-construction, comparison and statistical wrappers, figure-construction code,
-environment specifications and synthetic scientific checks.
+This release contains code, environments, schemas, synthetic checks and a data-free
+Figure 1a schematic. It contains no controlled cohort data or derivatives.
+The corrected workflow estimates GWAS effective information from supplied SEs,
+uses the matched LD variant universe for LDSC normalization and guards against
+reusing incompatible LDSC/auto caches. The reconstruction used existing post-QC
+genotype/LD objects. Raw-VCF QC was not repeated and discovery overlap remains unknown.
 
-The synthetic demo, unit tests and public-file checks can run without cohort
-data. Original feature reconstruction, prognostic model fitting, PRS calculation,
-participant inference and figure regeneration require authorized local inputs.
-No such controlled files, individual derivatives, fitted models or per-person
-display records are supplied in this release.
+The complete downstream model grid, clinical-only controls, contribution tests,
+biological-context analyses and all figures were regenerated privately.
+Optimization diagnostics require exact replay of each saved loss, parameter and
+held-out prediction. Validation is internal and clinical benefit is untested.
 
-The Figure 1a image is an architecture schematic without fitted curves,
-participant counts or observed measurements. This release makes no claim that
-the real-data manuscript figures can be reproduced from this archive alone.
-No model training or original-data statistical analyses were rerun during this
-privacy revision. The original model equations remain unchanged.
+Public files exclude real observations, empirical plotting inputs, participant
+summaries, fitted weights, individual examples and private paths.
+Local adds path/hash metadata and orchestration, not datasets or data access.

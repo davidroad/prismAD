@@ -1,3 +1,4 @@
+Sys.umask("0077")
 # =============================================================================
 # Step Zero: Prepare GWAS Summary Statistics and Target Genotype Data
 # for LDpred2-auto PRS (Alzheimer's Disease)
@@ -17,14 +18,15 @@
 #   Gipt     — mean-imputed version of G_sub (FBM, same dims)
 #   POS2     — genetic positions (cM) for matched variants only, same order as df_beta
 #   fam      — sample table from obj_bigSNP$fam (FID, IID, etc.)
-#   n_hm3    — total HapMap3+ variant count for correct ld_size in Step 1a LDSC
+#   n_hm3    — total HapMap3+ map size for provenance only (not LDSC denominator)
 #
 # Scientific caveats:
 #   - Schwartzentruber 2021 sumstats combine a GWAX (proxy phenotype) with a
 #     direct case-control GWAS. GWAX designs have known biases including
 #     survival bias and non-random parental illness reporting.
-#   - n_eff is hardcoded from the direct GWAS component only (21,982 cases /
-#     41,944 controls). Automated SE-based estimate fails for GWAX+GWAS designs.
+#   - Effective information is estimated from the supplied log-odds SEs.
+#     This is an empirical scale estimate, not the literal meta-analysis headcount.
+#     The final estimate is recalculated after matching and variance filtering.
 #   - snp_match is performed by position (join_by_pos = TRUE) to handle rsID
 #     inconsistencies between the sumstats and the ADSP genotype map.
 #   - Genetic positions use linear interpolation (snp_asGeneticPos2) against
@@ -82,6 +84,21 @@ OUT_DIR         <- Sys.getenv("PRS_OUTPUT_DIR", unset="")
 OUTPUT_RDATA    <- file.path(OUT_DIR, "ADSP_AD_prepared.Rdata")
 NCORES          <- as.integer(Sys.getenv("PRS_NCORES", "16"))
 
+
+required_env <- c("PRS_OUTPUT_DIR","HM3_MAP_FILE","SUMMARY_STATS","FINAL_BFILE","GENETIC_MAP_DIR")
+if (any(!nzchar(Sys.getenv(required_env))))
+  stop("Set PRS_OUTPUT_DIR to a new external private directory before running.")
+argv_file <- sub("^--file=", "", commandArgs(FALSE)[grepl("^--file=",commandArgs(FALSE))])
+if (length(argv_file)==1L) {
+  code_root <- dirname(dirname(normalizePath(argv_file,mustWork=TRUE)))
+  forbidden <- code_root
+  if (basename(dirname(code_root)) %in% c("PRISM-AD_Public","PRISM-AD_Local"))
+    forbidden <- c(forbidden,dirname(code_root))
+  candidate <- normalizePath(OUT_DIR,mustWork=FALSE)
+  if (any(vapply(forbidden,function(x)candidate==x || startsWith(candidate,paste0(x,"/")),logical(1))))
+    stop("PRS outputs must remain outside the public checkout and distribution packages.")
+}
+
 dir.create(OUT_DIR, recursive = TRUE, showWarnings = FALSE)
 
 PIPELINE_START <- proc.time()
@@ -95,14 +112,14 @@ log_step("================================================")
 # Step 1: Load HapMap3+ variant map
 #
 # Used for: (a) filtering sumstats to well-imputed common variants,
-#           (b) recording n_hm3 for correct ld_size in Step 1a LDSC.
+#           (b) recording the original map size for provenance only.
 # =============================================================================
 
 log_step("Step 1: Loading HapMap3+ variant map...")
 t0 <- proc.time()
 
 map_hm3 <- readRDS(HM3_MAP_FILE)
-n_hm3   <- nrow(map_hm3)   # saved to .Rdata — required by Step 1a snp_ldsc
+n_hm3   <- nrow(map_hm3)   # original map size, not the LDSC denominator
 log_step("  HapMap3+ variants (n_hm3):", n_hm3)
 step_time(t0)
 
@@ -114,7 +131,7 @@ step_time(t0)
 #   effect_allele -> a1, other_allele -> a0,
 #   beta -> beta, standard_error -> beta_se, p_value -> pvalue
 #
-# n_eff is hardcoded from the direct GWAS component only — see caveats above.
+# n_eff is an empirical information estimate on the supplied GWAS effect scale.
 # =============================================================================
 
 SUMSTATS_CACHE <- file.path(OUT_DIR, "sumstats_formatted.rds")
@@ -166,11 +183,9 @@ if (file.exists(SUMSTATS_CACHE)) {
     stop("ERROR: position value of 0 detected — `start` column appears 0-based. ",
          "Fix: pos = as.integer(start) + 1")
 
-  # Hardcoded n_eff from direct GWAS component (Schwartzentruber 2021)
-  n_cases    <- 21982
-  n_controls <- 41944
-  sumstats$n_eff <- 4 / (1/n_cases + 1/n_controls)
-  log_step("  n_eff (direct GWAS, Schwartzentruber 2021):", round(sumstats$n_eff[1]))
+  # Provisional estimate; Step 1a recalculates on the final retained variants.
+  sumstats$n_eff <- unname(quantile(8 / sumstats$beta_se^2, .999, type=7))
+  log_step("  n_eff (empirical SE-derived information):", sumstats$n_eff[1])
 
   saveRDS(sumstats, SUMSTATS_CACHE)
   log_step("  Loaded", nrow(sumstats), "autosomal variants — cached")
@@ -381,7 +396,7 @@ Gipt <- G_sub
 #             for both LD computation and PRS scoring
 #   POS2    — genetic positions (cM) for matched variants, same order as df_beta
 #   fam     — sample table (FID, IID, sex, phenotype) for output labeling
-#   n_hm3   — total HapMap3+ variant count for snp_ldsc ld_size in Step 1a
+#   n_hm3   — original HapMap3+ map size, retained for provenance only
 # =============================================================================
 
 log_step("Step 8: Saving prepared objects to .Rdata...")

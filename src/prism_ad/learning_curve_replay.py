@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Retrospective diagnostics; original data, predictions and checkpoints remain read-only."""
 import os
-os.environ.update(CUDA_VISIBLE_DEVICES='0',PYTHONDONTWRITEBYTECODE='1',
+os.environ.setdefault('CUDA_VISIBLE_DEVICES','0')
+os.environ.update(PYTHONDONTWRITEBYTECODE='1',
  HF_HUB_OFFLINE='1',TRANSFORMERS_OFFLINE='1',TOKENIZERS_PARALLELISM='false',
  OMP_NUM_THREADS='4',MKL_NUM_THREADS='4',OPENBLAS_NUM_THREADS='4',CUBLAS_WORKSPACE_CONFIG=':4096:8')
 import sys,json,hashlib,inspect,signal,time
@@ -81,7 +82,9 @@ def main():
  meta_all=pd.read_csv(ORIGINAL/'LOCAL_RESTRICTED/metadata.csv',dtype={'subject_id':str})
  with np.load(ORIGINAL/'LOCAL_RESTRICTED/features.npz',allow_pickle=False) as archive:data_all={k:archive[k] for k in archive.files}
  rows=[];audits=[]
- for task in ('MCI_AD','CN_MCI'):
+ tasks=[os.environ['PRISM_AD_DIAGNOSTIC_TASK']] if os.environ.get('PRISM_AD_DIAGNOSTIC_TASK') else ['MCI_AD','CN_MCI']
+ assert set(tasks)<= {'MCI_AD','CN_MCI'}
+ for task in tasks:
   select=np.flatnonzero(meta_all.task.eq(task));meta=meta_all.iloc[select].reset_index(drop=True)
   data={k:v[select] for k,v in data_all.items()}
   for fold in (1,2,3):
@@ -129,11 +132,11 @@ def main():
      dump(OUT/'replay_status.json',dict(status='RUNNING',completed=len(audits),seconds=time.time()-started))
      log(dict(event='EXACT_REPLAY_PASS',**case,seconds=audit['seconds']))
      del training,validation
- assert len(audits)==24 and len(rows)==1440
+ assert len(audits)==12*len(tasks) and len(rows)==720*len(tasks)
  provenance.update(run_audits=audits,status='PASS',seconds=time.time()-started)
  dump(OUT/'replay_verification.json',provenance)
- dump(OUT/'replay_status.json',dict(status='PASS',completed=24,epochs=1440,seconds=time.time()-started))
- log(dict(event='ALL_24_EXACT_REPLAYS_PASS',seconds=time.time()-started))
+ dump(OUT/'replay_status.json',dict(status='PASS',completed=len(audits),epochs=len(rows),seconds=time.time()-started))
+ log(dict(event='ALL_REQUESTED_EXACT_REPLAYS_PASS',seconds=time.time()-started))
 if __name__=='__main__':
  try:main()
  except Exception as error:

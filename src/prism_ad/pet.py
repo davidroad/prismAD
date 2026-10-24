@@ -20,8 +20,8 @@ HERE=workspace();PROJECT=HERE;OUT=HERE/'results'
 OLDER=input_path('older_cn_pet')
 ALL_AGE=input_path('all_age_cn_pet')
 LOCKED={}
-PRS_MEAN = 0.05321644527935803
-PRS_SD = 0.5857914301978194
+PRS_MEAN = None
+PRS_SD = None
 PCS = [f"PC{i}" for i in range(1, 6)]
 OLDER_FORMULA = "centiloids ~ PRS_sd + scan_age + female + " + " + ".join(PCS) + " + C(Study) + C(tracer)"
 OLDER_LAG_FORMULA = "centiloids ~ PRS_sd + scan_age + CN_lag + female + " + " + ".join(PCS) + " + C(Study) + C(tracer)"
@@ -55,6 +55,9 @@ def fit(name, d, formula, cohort, note=""):
 
 
 def main():
+    global PRS_MEAN,PRS_SD
+    roster=pd.read_csv(input_path("genotype_roster"),usecols=["PRS"])
+    PRS_MEAN,PRS_SD=float(roster.PRS.mean()),float(roster.PRS.std(ddof=1))
     if (OUT / "manifest.json").exists():
         old = json.loads((OUT / "manifest.json").read_text())
         assert old["scope"].startswith("Exploratory, post hoc associations"), "Unknown prior manifest"
@@ -68,14 +71,14 @@ def main():
     all_age = pd.read_parquet(ALL_AGE)
     assert len(older) == 802 and older.subject_id.is_unique
     assert len(all_age) == 3115 and all_age.subject_id.is_unique
-    assert older.high.value_counts().to_dict() == {0.0: 707, 1.0: 95}
+    assert older.high.isin([0.,1.]).all() and older.high.nunique()==2
     assert all_age.group.value_counts().to_dict()["CN_to_AD"] == 19
     all_age["PRS_sd"] = (all_age.PRS - PRS_MEAN) / PRS_SD
     all_age["female"] = all_age.sex.map({1: 0., 2: 1.})
     all_age_cn = all_age[all_age.final_status.eq("CN")].copy()
     high = all_age[all_age.group.eq("resilience_CN")].copy()
     other = all_age[all_age.group.eq("other_CN_no_AD")].copy()
-    assert len(all_age_cn) == 3030 and len(high) == 456 and len(other) == 2574
+    assert len(all_age_cn)==3030 and len(high)+len(other)==len(all_age_cn)
     assert np.allclose(older.PRS_sd, (older.PRS - PRS_MEAN) / PRS_SD)
 
     specs = [

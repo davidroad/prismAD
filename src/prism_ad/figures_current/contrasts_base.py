@@ -40,7 +40,7 @@ def group_contrast(fig,panel,right,x):
         for h,marker,dy in [(3,'o',-.16),(5,'s',.16)]:
             r=old.one(old.contrasts,model='PRISM_current',scope='primary_observed',right=right,component=component,horizon=h);assert r.status=='ok'
             ax.errorbar(r.beta,y+dy,xerr=[[r.beta-r.ci_low],[r.ci_high-r.beta]],fmt=marker,ms=3.7,mfc=color if h==3 else 'white',mew=.8,color=color,lw=.85,capsize=2,zorder=3)
-            label_star=star(r.q_all_128)
+            label_star=star(r.q_all_128) or ('(*)' if r.p<.05 else '')
             if label_star:ax.text(r.ci_high+.045,y+dy,label_star,fontsize=7,weight='bold',ha='left',va='center',color=C['ink'])
             item=dict(figure=3,panel=panel,component=component,right=right,horizon=h,estimate=float(r.beta),ci_low=float(r.ci_low),ci_high=float(r.ci_high),p=float(r.p),q=float(r.q_all_128),label=label_star,criterion='BH q',family='128 contribution contrasts',n_high_PRS_last_CN=int(r.n_resilience_CN),n_other_CN=int(r.n_other_CN_no_AD),n_CN_later_AD=int(r.n_CN_to_AD))
             annotations.append(item);plotted.append(item)

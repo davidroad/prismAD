@@ -7,7 +7,7 @@
     "amyloid_pet": "../data/restricted/amyloid_pet.csv",
     "tabpfn_checkpoint": "../models/licensed/tabpfn-v3-classifier-v3_default.ckpt",
     "prediction_directory": "../work/prediction",
-    "no_prs_directory": "../work/without_prs",
+    "no_prs_directory": "../work/no_prs",
     "cn_course_groups": "../work/groups/restricted_local/clinical_CN_index_three_groups_primary.csv",
     "older_cn_pet": "../work/groups/restricted_local/older_CN_PET.parquet",
     "all_age_cn_pet": "../work/groups/restricted_local/PET_CN_index_indices_and_course.parquet",
@@ -18,9 +18,9 @@
     "pet_directory": "../work/pet",
     "cn_course_indices": "../work/groups/restricted_local/clinical_CN_index_indices_and_course.parquet",
     "prior_targeted_contributions": "../work/interpretation/LOCAL_RESTRICTED/fixed_groups_OOF_contributions.parquet",
-    "current_profile_components": "../work/current_profiles/restricted_local/relative_components_controlled.csv",
-    "profile_join_keys": "../work/current_profiles/restricted_local/private_join_keys.parquet",
-    "source_data_directory": "../private_local/figure_inputs"
+    "current_profile_components": "../work/profiles/restricted_local/relative_components_controlled.csv",
+    "profile_join_keys": "../work/profiles/restricted_local/private_join_keys.parquet",
+    "source_data_directory": "../work/SourceData"
   },
   "expected_hashes": {}
 }

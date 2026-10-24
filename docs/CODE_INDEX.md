@@ -32,3 +32,9 @@ input paths and the original allocations/checkpoints. Use features and groups
 before new model fitting. Metrics, contribution analyses and private figures can
 also use the original frozen server artifacts; these inputs are never copied
 into the public code release.
+
+## Corrected figure-input assembly
+prepare_figure_inputs.py stages current private figure inputs from the fixed execution graph.
+figures_current/figure5_native.py rebuilds all Figure 5 panels from those fresh results.
+figures_current/figure5_layout.py and panel_layout.py contain data-free layout geometry only.
+No real plotting records or empirical tables are distributed.
