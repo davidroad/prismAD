@@ -1,3 +1,10 @@
+# 1.2.1 — 26 October 2026
+- Align release documentation with the final main-text and supplementary reporting.
+- Clarify the checked-file replay and complete private refit modes.
+- Identify the table-export helpers supplied only in the private Local package.
+- Synchronize package, module and citation metadata versions.
+- Preserve all scientific source files, model settings, inference families and protected-output boundaries.
+
 # Corrected PRS reproduction, 2026-10-24
 
 - Correct matched-LD normalization and replace clinical-only N with the supplied-effect SE estimate.

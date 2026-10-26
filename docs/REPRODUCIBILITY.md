@@ -14,3 +14,10 @@ held-out prediction. Validation is internal and clinical benefit is untested.
 Public files exclude real observations, empirical plotting inputs, participant
 summaries, fitted weights, individual examples and private paths.
 Local adds path/hash metadata and orchestration, not datasets or data access.
+
+Release 1.2.1 synchronizes reporting documentation and package metadata.
+It does not change scientific algorithms or repeat model training. The Local
+reporting helpers were checked against the final supplementary tables.
+Current Public and Local Code directories must be byte-identical to the same
+published commit. The complete author package records that commit and the
+private input identities without publishing the inputs.

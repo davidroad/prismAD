@@ -38,3 +38,11 @@ prepare_figure_inputs.py stages current private figure inputs from the fixed exe
 figures_current/figure5_native.py rebuilds all Figure 5 panels from those fresh results.
 figures_current/figure5_layout.py and panel_layout.py contain data-free layout geometry only.
 No real plotting records or empirical tables are distributed.
+
+## Private Local reporting add-ons
+The full collaborator bundle, separately from this public repository, provides
+scripts/build_publication_tables.py for publication Tables 1--10 and
+scripts/build_reporting_tables.py for characteristics, follow-up and calibration
+tables. Its CODE_FILE_INDEX.json binds their exact private server sources.
+The public code exposes the underlying analyses; generated publication tables,
+server paths, input identities and receipts remain outside GitHub.

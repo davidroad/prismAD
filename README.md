@@ -1,4 +1,9 @@
 # PRISM-AD
+
+Release 1.2.1 (26 October 2026) aligns documentation with the final manuscript
+and supplementary reporting. The scientific implementations and fitting settings
+are unchanged from the corrected-PRS reconstruction.
+
 Code for interpretable cognitive prognosis with explicit clinical and genetic
 contributions. PRISM-AD learns nonlinear clinical functions and retains a
 distinct PRS term. Its predicted probability is sigmoid(C + G + R), where C
@@ -54,3 +59,21 @@ Before distributing a directory or committing staged changes:
     python scripts/check_public_release.py --staged
 
 See LICENSE.txt and THIRD_PARTY_NOTICES.md for reuse and third-party terms.
+
+## Reproduction modes and current reporting
+The public checkout provides the analysis implementation and synthetic checks.
+The separate, private Local collaborator package adds checked server paths,
+input-identity indexes and execution wrappers. It includes:
+
+- scripts/reproduce.py for validating and replaying authorized frozen inputs.
+- scripts/reproduce_corrected.py for complete refitting in a new private directory.
+- scripts/build_publication_tables.py and scripts/build_reporting_tables.py for
+  the final publication-format tables, including characteristics, follow-up and
+  calibration reporting.
+
+These Local paths are not files in this GitHub checkout. No Local configuration,
+input hashes, result tables or manuscript documents are distributed on GitHub.
+The final reporting helpers were executed and reconciled with the manuscript
+separately from the public synthetic checks. A documentation update does not
+require rerunning the unchanged model grid. Use the complete private refit only
+when intentionally reproducing or changing the authorized inputs or analysis.

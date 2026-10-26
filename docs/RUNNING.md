@@ -57,23 +57,14 @@ distributions contain none of these outputs. Private plotting JSON records, if
 generated, are also controlled derivatives and cannot be bundled as code.
 
 
-## Complete corrected workflow
-Authorized collaborators can use the sibling Local package's
-scripts/reproduce_corrected.py to run the complete graph in a new external private
-directory. Baseline and genotype-roster inputs must contain the corrected PRS.
-Do not point these inputs to historical prediction directories.
+## Reconcile final publication reporting
+The separate private Local package supplies two additional table exporters.
+After a complete run, build_publication_tables.py consumes the fresh work root,
+while build_reporting_tables.py consumes its resolved private configuration.
+Use the commands in Local/README.md and keep outputs outside both code packages.
+Copy only publication-format TeX into a private article build; do not commit
+generated tables, receipts or underlying summaries.
 
-After export and profile-export, run current-statistics and cognitive-strata,
-then figure-inputs. The fixed graph uses work/prediction, work/no_prs,
-work/interpretation, work/education, work/paired, work/genetic, work/pet,
-work/profiles, work/statistics, work/cognitive_strata and work/SourceData.
-Point every configuration role to the new outputs. figure-inputs assembles the
-private plotting summaries from this graph.
-
-The no-PRS output needs its own PREFLIGHT.json and LOCAL_RESTRICTED folder.
-Run its preflight or copy a successful identical-environment preflight receipt.
-
-Loss replay can be split by setting PRISM_AD_DIAGNOSTIC_TASK to one task and
-CUDA_VISIBLE_DEVICES to its allocated GPU. Combine both passing audit lists and
-loss tables before rendering Supplementary Figure 3. This affects orchestration,
-not the model, optimizer, epoch selection or scientific settings.
+For a code/documentation synchronization, run the public release guard and
+synthetic checks, then the Local file verifier and input check. This verifies
+the synchronized release without claiming a new raw-data or model rerun.

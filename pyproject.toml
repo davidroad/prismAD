@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prism-ad"
-version = "1.1.0"
+version = "1.2.1"
 description = "Quantifying clinical and genetic contributions to cognitive risk prediction"
 requires-python = ">=3.8"
 dependencies = ["numpy>=1.22", "pandas>=1.3"]
