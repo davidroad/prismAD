@@ -1,5 +1,6 @@
 """Regenerate the current manuscript figures from the companion source data."""
 from pathlib import Path
+from .publication_numbering import SUPPLEMENTARY_FIGURE_IDS
 import os,json,platform,hashlib,importlib.metadata,time
 def _sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def render(figure,source,output):
@@ -18,7 +19,7 @@ def render(figure,source,output):
     stem='SupplementaryFigure'+figure[1:]if figure.startswith('S')else'Figure'+figure
     for ext in ['pdf','svg','png']:
         meta={'CreationDate':None,'ModDate':None}if ext=='pdf'else{'Date':None}if ext=='svg'else{}
-        if figure=='S3':
+        if figure==SUPPLEMENTARY_FIGURE_IDS['optimization']:
             fig.savefig(out/(stem+'.'+ext),dpi=600,metadata=meta)
         else:
             # A panel helper may set tight cropping through its style defaults.
@@ -28,7 +29,7 @@ def render(figure,source,output):
     plt.close(fig)
     from PIL import Image
     image=Image.open(out/(stem+'.png'))
-    if figure!='S3':
+    if figure!=SUPPLEMENTARY_FIGURE_IDS['optimization']:
         expected=fig.get_size_inches()*600
         assert all(abs(a-b)<=1 for a,b in zip(image.size,expected)), 'Publication canvas was cropped'
     image.thumbnail((1450,1900));image.save(out/(stem+'_preview.png'))

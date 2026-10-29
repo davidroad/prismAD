@@ -1,4 +1,4 @@
-"""Supplementary Figure 1: ages at the first eligible prediction visit."""
+"""Supplementary Figure 2: ages at the first eligible prediction visit."""
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.text import Text

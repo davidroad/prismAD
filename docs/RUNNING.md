@@ -92,7 +92,7 @@ genetic evidence, fixed-horizon AD incidence estimates or external validation.
 
 All diagnostic outputs, including aggregate CSV/JSON, are controlled derivatives.
 Keep them outside code packages and Git repositories. The Local table exporter
-can append the model-scale results to publication Table 10 in a private article
+can append the model-scale results to publication Table 4 in a private article
 build. No generated empirical results belong in this repository.
 
 ## Follow-up endpoint and frozen plan

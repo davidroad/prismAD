@@ -1,5 +1,6 @@
 """Revised main figures from unchanged aggregate estimates; no model fitting."""
 from pathlib import Path
+from .publication_numbering import supplementary_table_number
 import hashlib
 import matplotlib
 matplotlib.use('Agg')
@@ -29,7 +30,7 @@ def fig2():
     old.stage_discrimination(axes[0])
     original.annotations.clear();original.nominal(axes[1])
     for item in original.annotations:
-        item['family']=item['family'].replace('Supplementary Table 2','Supplementary Table 4')
+        item['family']=item['family'].replace('Supplementary Table 2','Supplementary Table '+str(supplementary_table_number(4)))
     annotations.extend(original.annotations)
     title(fig,'Current clinical measures + PRS',.5,.985)
     letters=[letter(fig,'a',.025,.915),letter(fig,'b',.525,.915)]

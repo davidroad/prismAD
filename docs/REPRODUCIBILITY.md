@@ -41,3 +41,10 @@ a private frozen plan, with full proportional-hazards/censoring diagnostics.
 No assumption check is a guarantee that ascertainment or external validity has
 been resolved. The public release includes code and synthetic tests, not the
 private empirical estimates or full-first-CN ledger.
+
+## Release 1.4.1 publication numbering
+
+Current supplementary exports follow first citation in the manuscript. S1 is
+optimization, S2 age and S3 PRS increments. Table display numbers are mapped
+from stable scientific output identifiers in publication_numbering.py. This
+reporting change preserves the fitted models, calculations and test families.

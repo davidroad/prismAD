@@ -1,4 +1,4 @@
-"""Supplementary Figure 2: matched genetic-information increments."""
+"""Supplementary Figure 3: matched genetic-information increments."""
 import numpy as np
 import pandas as pd
 import matplotlib

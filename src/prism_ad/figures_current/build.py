@@ -3,6 +3,7 @@ from pathlib import Path
 import os,json,numpy as np,pandas as pd
 import matplotlib.pyplot as plt
 from . import common
+from ..publication_numbering import SUPPLEMENTARY_FIGURE_IDS
 
 def _capture(name):
     captured={}
@@ -94,10 +95,10 @@ def build(figure):
         from .figure5_native import build as updated_figure5
         fig=updated_figure5()
         return fig,common.geometry(fig)
-    if figure=='S1':
+    if figure==SUPPLEMENTARY_FIGURE_IDS['age']:
         from ..age_figure import plot
         return plot(pd.read_csv(data/'plotting/age_summary.csv'))
-    if figure=='S2':
+    if figure==SUPPLEMENTARY_FIGURE_IDS['prs']:
         from ..genetic_figure import build as genetic
         fig,_=genetic()
         for t in list(fig.texts):
@@ -112,7 +113,7 @@ def build(figure):
                 y=(-.16 if r.horizon==3 else .16)
                 fig.axes[axis].text(r.ci_high_original500+.0015,y,marker,fontsize=7,ha='left',va='center',color='#202124',clip_on=False)
         return fig,common.geometry(fig)
-    if figure=='S3':
+    if figure==SUPPLEMENTARY_FIGURE_IDS['optimization']:
         from .learning_curves import build as losses
         fig=losses()
         return fig,common.geometry(fig)

@@ -1,11 +1,15 @@
 # PRISM-AD
 
-Release 1.4.0 (29 October 2026) adds descriptive calibration and marginal
-contribution panels, a full-first-CN forecast export for authorized private
-follow-up analyses, and a planned AD follow-up sensitivity command. The
-prediction-model implementations, fitted settings and original inference
-families are unchanged. New association regressions are separate from PRISM-AD
-training and are not external validation.
+Release 1.4.1 (29 October 2026) aligns supplementary figure and table exports
+with first-citation order in the manuscript. Supplementary figures now show
+optimization curves (S1), age distributions (S2) and PRS increments (S3).
+Prediction models, fitted settings, scientific results and inference families
+are unchanged.
+
+Release 1.4.0 added descriptive calibration and marginal-contribution panels,
+a full-first-CN forecast export for authorized private follow-up analyses, and
+a planned AD follow-up sensitivity command. Those association regressions are
+separate from PRISM-AD training and are not external validation.
 
 Code for interpretable cognitive prognosis with explicit clinical and genetic
 contributions. PRISM-AD learns nonlinear clinical functions and retains a

@@ -1,3 +1,12 @@
+# 1.4.1 — 29 October 2026
+
+- Align supplementary figure and table publication numbers with first citation
+  in the revised manuscript, using one explicit mapping for current exports.
+- Preserve all scientific inputs, model fits, calculations, inference families
+  and main figures. This patch changes reporting aliases only.
+- Keep controlled data, empirical outputs and the complete author package out
+  of the public release.
+
 # 1.4.0 — 29 October 2026
 - Add descriptive first-visit calibration and marginal contribution panels without changing existing panel data or tests.
 - Preserve full vector/raster canvas dimensions when panel helpers load style defaults.

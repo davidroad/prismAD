@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Redesigned Figure 2: prediction context and matched PRS increments, frozen rows only."""
 from pathlib import Path
+from prism_ad.publication_numbering import supplementary_table_number
 import hashlib, importlib.util, json
 import numpy as np
 import pandas as pd
@@ -82,7 +83,7 @@ def make():
             b.errorbar(r.difference,y,xerr=[[r.difference-r.ci_low],[r.ci_high-r.difference]],fmt=marker,color=col,ms=3.7,mfc=col,mew=.65,lw=.8,capsize=1.8,zorder=3)
             star='***' if t.q<.001 else '**' if t.q<.01 else '*' if t.q<.05 else '(*)' if t.p<.05 else ''
             if star:b.text(.151,y,star,ha='center',va='center',fontsize=7,color=C['ink'],weight='bold')
-            ANNOTATIONS.append(dict(figure=2,panel='b',task=task,horizon=h,model='PRISM_current',reference=reference,p=float(t.p),q=float(t.q),label=star,criterion='BH q; (*) denotes nominal P<0.05 with q>=0.05',family='28 first-visit AP tests; Supplementary Table 4',interval_source='original 500-resample participant-bootstrap percentile CI',p_source='9999-resample null-centered paired participant bootstrap'))
+            ANNOTATIONS.append(dict(figure=2,panel='b',task=task,horizon=h,model='PRISM_current',reference=reference,p=float(t.p),q=float(t.q),label=star,criterion='BH q; (*) denotes nominal P<0.05 with q>=0.05',family='28 first-visit AP tests; Supplementary Table '+str(supplementary_table_number(4)),interval_source='original 500-resample participant-bootstrap percentile CI',p_source='9999-resample null-centered paired participant bootstrap'))
             record('b',FILENAMES[1],r,['task','horizon','model','reference','metric'])
     b.axvline(0,color=C['muted'],ls=':',lw=.7,zorder=0)
     b.set(xlim=(-.15,.17),xticks=[-.1,0,.1],xlabel='AP difference\n(PRISM-AD − comparator)')
