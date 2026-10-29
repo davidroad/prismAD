@@ -79,3 +79,8 @@ shutil.copy2(table/"marginal_component_distributions.csv",plot/"marginal_compone
 pool_calibration(pd.read_csv(table/"genetic_increment_calibration_first_visit.csv")).to_csv(plot/"calibration_pooled_first_visit.csv",index=False)
 (r/"audit/RESULT_SUMMARY.json").write_text(json.dumps(summary,indent=2,default=str)+"\n")
 print(json.dumps({k:v for k,v in summary.items()if k in ["profile_counts","targeted_counts","pet"]},indent=2))
+
+# New post hoc panel diagnostics are prepared privately as one fixed family.
+from .runtime import input_path
+for name in ["marginal_component_points.csv","calibration_slope_tests.csv","marginal_component_tests.csv","panel_tests_BH10.csv"]:
+ shutil.copy2(input_path("panel_diagnostics_directory")/name,plot/name)

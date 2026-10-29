@@ -20,3 +20,7 @@ and model files must not be added to GitHub or the distributable archive.
 Optional plotting commands require local authorized analysis outputs.
 A public GWAS accession identifies an upstream publication and does not provide
 access to the controlled target-cohort genotypes.
+
+- panel_analysis_plan: external private frozen revision-method record.
+- panel_diagnostics_directory: executed post hoc slope/rank diagnostics,
+  individual point exports and combined BH labels; all remain private.

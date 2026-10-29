@@ -27,7 +27,7 @@ and point every configuration role to the corresponding fresh output:
 9. profile-replay -> work/profiles, including the full first-eligible CN ledger.
 10. export -> work/SourceData; profile-export -> work/SourceData/tables.
 11. current-statistics -> work/statistics; cognitive-strata -> work/cognitive_strata.
-12. model-scale-checks -> work/model_scale; followup-sensitivity -> work/followup; then figure-inputs -> work/SourceData.
+12. model-scale-checks -> work/model_scale; followup-sensitivity -> work/followup; panel-diagnostics -> work/panel_diagnostics; then figure-inputs -> work/SourceData.
 13. learning-curve-replay -> work/optimization. Copy its learning_curves.csv and
     passing replay_verification.json into work/SourceData/optimization.
 14. render --figure all --source-data work/SourceData --output work/Figures.
@@ -123,3 +123,38 @@ All ledgers, CSVs, diagnostics, regression artifacts, source hashes and private
 plans remain outside Public/Local and all Git repositories. Reconstructing this
 analysis does not establish external validation, competing-risk AD incidence,
 biological onset or diagnostic lead time.
+
+## Post hoc panel diagnostics (v1.5.0)
+
+    python -m prism_ad panel-diagnostics --config /PRIVATE_CONFIG.json --output /PRIVATE_NEW_PANEL_DIAGNOSTICS
+
+Run after first-visit predictions and current_profile_components exist. Supply
+panel_analysis_plan as a separately authorized frozen revision-method record.
+It defines four calibration-slope and six marginal clinical-course test slots.
+The plan was fixed for this revision, after the underlying study and earlier
+descriptive figures existed; it is not prospective preregistration.
+
+The command estimates intercept and slope against individual saved logit
+forecasts with positive IPCW known outcomes. Its empirical participant-score
+sandwich uses HC1 n/(n−2), normal intervals and two-sided slope = 1 tests.
+Intervals condition on the saved forecasts and censoring weights; they do not
+propagate prediction-model fitting or weight-estimation uncertainty. Diagnostic
+fits are not applied to recalibrate the forecasts. A nonsignificant slope test
+does not establish calibration across the full risk range.
+
+Marginal C/G comparisons use fold-specific midranks, tie-corrected variances,
+inverse-(pair-specific fold size + 1) weights and two-sided van Elteren normal
+tests. The signed rank-biserial summary is twice weighted pairwise concordance
+minus one; positive values indicate larger values in the second named group.
+These distributional tests are not pure median tests. They do not adjust for
+C, age, study or follow-up and do not estimate causal or clinical AD risks.
+They differ from earlier within-course PRS-quintile tests and the analysis
+conditioning on comparable cognitive contributions.
+
+All ten slots share one new BH family. Nonestimable slots remain in the family
+with P = 1. Stars denote BH q thresholds; (*) denotes nominal-only P < 0.05.
+The plotting code consumes the resulting labels without selecting tests.
+All individual points, diagnostic arrays, summaries and test tables remain
+private outside code packages. Set panel_diagnostics_directory to the executed
+output before figure-inputs or publication table export. A fresh Local run
+redirects it into its new work root.

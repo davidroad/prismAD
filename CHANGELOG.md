@@ -1,3 +1,16 @@
+# 1.5.0 — 29 October 2026
+
+- Add individual first-visit IPCW calibration slopes with free intercepts,
+  participant-score HC1 intervals and two-sided slope = 1 tests.
+- Add fold-stratified, tie-corrected van Elteren comparisons of marginal
+  clinical-course contributions, with signed rank-biserial summaries.
+- Use one separate ten-test BH family for four slopes and six rank contrasts.
+- Draw all individual native signed contributions as deterministic beeswarms;
+  retain fold identities, full tails, medians and IQRs.
+- Add private diagnostic orchestration and publication-table reporting modules.
+- Preserve original prognostic fits, a–d data, earlier inference families and
+  controlled-output boundaries. Diagnostic fits do not alter forecasts.
+
 # 1.4.2 — 29 October 2026
 
 - Refine descriptive calibration and marginal-contribution panel graphics.

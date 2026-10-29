@@ -20,7 +20,9 @@
     "prior_targeted_contributions": "../work/interpretation/LOCAL_RESTRICTED/fixed_groups_OOF_contributions.parquet",
     "current_profile_components": "../work/profiles/restricted_local/relative_components_controlled.csv",
     "profile_join_keys": "../work/profiles/restricted_local/private_join_keys.parquet",
-    "source_data_directory": "../work/SourceData"
+    "source_data_directory": "../work/SourceData",
+    "panel_analysis_plan": "/PRIVATE/panel_analysis_plan.json",
+    "panel_diagnostics_directory": "/PRIVATE/panel_diagnostics"
   },
   "expected_hashes": {}
 }

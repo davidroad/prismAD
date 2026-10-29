@@ -1,6 +1,6 @@
-"""Descriptive calibration panels from privately pooled first-visit bins.
+"""Calibration points and fixed-prediction slope diagnostics from private summaries.
 
-No fitting or recalibration. Unsupported bins interrupt the curves.
+The renderer fits no model, applies no recalibration, and omits unsupported bins.
 """
 import numpy as np
 import pandas as pd
@@ -57,7 +57,7 @@ def _curve(frame):
     }
 
 
-def draw(ax, rows, task, legend=False):
+def draw(ax, rows, task, legend=False, diagnostics=None):
     """Draw binned calibration points; the compositor supplies title/letter.
 
     The coordinates retain the original IPCW-weighted bin means. Unsupported
@@ -106,6 +106,40 @@ def draw(ax, rows, task, legend=False):
         ax.legend(handles=handles + [diagonal], loc="upper left",
                   fontsize=7, frameon=False, handlelength=1.3,
                   handletextpad=0.5, borderaxespad=0.5, labelspacing=0.4)
+    diagnostic_annotations = []
+    if diagnostics is not None:
+        required_diagnostic = {"task", "horizon", "slope", "ci_low", "ci_high", "p", "q", "label"}
+        missing_diagnostic = required_diagnostic.difference(diagnostics.columns)
+        if missing_diagnostic:
+            raise ValueError("Missing calibration diagnostic columns: " + ", ".join(sorted(missing_diagnostic)))
+        selected = diagnostics.loc[diagnostics.task.eq(task)].copy()
+        if len(selected) != 2 or set(selected.horizon) != {3, 5}:
+            raise ValueError("One calibration diagnostic per horizon is required")
+        for j, horizon in enumerate((3, 5)):
+            row = selected.loc[selected.horizon.eq(horizon)].iloc[0]
+            numbers = np.asarray([row.slope, row.ci_low, row.ci_high, row.p, row.q], dtype=float)
+            if not np.isfinite(numbers).all() or not row.ci_low <= row.slope <= row.ci_high:
+                raise ValueError("Finite, ordered calibration estimates and CIs are required")
+            if not 0 <= row.p <= 1 or not 0 <= row.q <= 1:
+                raise ValueError("Diagnostic probabilities must be in [0,1]")
+            label = "***" if row.q < .001 else "**" if row.q < .01 else "*" if row.q < .05 else "(*)" if row.p < .05 else "n.s."
+            if str(row.label) != label:
+                raise ValueError("Calibration marker does not match the supplied P and BH q")
+            text = (str(horizon) + "y slope " + format(row.slope, ".2f")
+                    + " (" + format(row.ci_low, ".2f") + "–"
+                    + format(row.ci_high, ".2f") + "), " + label)
+            # Two fixed physical offsets leave every calibration point visible.
+            # The compositor reserves the corresponding 18-mm bottom strip.
+            artist = ax.annotate(text, xy=(0, 0), xycoords=ax.transAxes,
+                                 xytext=(0, -(14 + j*4)*72/25.4),
+                                 textcoords="offset points", ha="left", va="center",
+                                 fontsize=6.5, color=colors[horizon], clip_on=False,
+                                 annotation_clip=False)
+            artist.set_gid("calibration_slope_" + task + "_" + str(horizon))
+            diagnostic_annotations.append(dict(horizon=int(horizon), slope=float(row.slope),
+                                               ci_low=float(row.ci_low), ci_high=float(row.ci_high),
+                                               p=float(row.p), q=float(row.q), label=label,
+                                               interpretation="departure of slope from 1; not comparative accuracy"))
     return {
         "task": task, "summary": "IPCW mass-weighted first-visit calibration bins",
         "display": "binned calibration scatter with no connecting lines",
@@ -114,6 +148,9 @@ def draw(ax, rows, task, legend=False):
         "unsupported_bin_gaps_retained": True,
         "horizon_colors": {str(k): v for k, v in colors.items()},
         "marker_sizes_encode_support": False,
-        "support": support, "confidence_intervals": False,
-        "recalibration_fitted": False, "hypothesis_tests_added": False,
+        "support": support, "bin_confidence_intervals": False,
+        "diagnostic_annotations": diagnostic_annotations,
+        "diagnostic_confidence_intervals": "nominal normal Wald 95%; HC1 empirical-score sandwich" if diagnostics is not None else None,
+        "recalibration_fitted": False, "hypothesis_tests_added": diagnostics is not None,
+        "diagnostic_null": "calibration slope = 1" if diagnostics is not None else None,
     }

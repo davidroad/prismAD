@@ -1,9 +1,10 @@
 # PRISM-AD
 
-Release 1.4.2 (29 October 2026) refines the descriptive calibration and
-marginal-contribution panels. The same private bin coordinates and fold-specific
-quartiles are retained. Scientific calculations, model fits, inference and
-supplementary numbering remain unchanged.
+Release 1.5.0 (29 October 2026) adds post hoc calibration-slope diagnostics,
+fold-stratified marginal contribution comparisons and individual beeswarm
+panels. Four slope tests and six clinical-course contrasts form one separate
+ten-test BH family. Original prediction-model implementations, saved forecasts,
+earlier inference families and supplementary numbering are retained.
 
 Release 1.4.1 aligned supplementary exports with manuscript first-citation
 order. Supplementary figures show optimization curves (S1), age distributions
@@ -105,7 +106,9 @@ five-year raw-PRS contrast. It requires a private frozen plan and tie-convention
 amendment, authorized forecast/history inputs and R survival. All effect
 estimates and assumption diagnostics stay in private output storage.
 
-Figures 2 and 3 retain their original a–d panels. Their additional e/f panels
-use mass-weighted calibration summaries and within-fold marginal C/G medians
-and IQRs. IQRs describe participant spread; no new tests are attached to these
-descriptive panels. Fixed canvas exports preserve panel-letter gutters.
+Figures 2 and 3 retain their original a–d data and geometry. Figure 2e/f
+retains binned calibration points and adds diagnostic slope intervals.
+Figure 3e/f shows every individual contribution with horizontal beeswarm
+packing, separate folds and median/IQR summaries. The renderer reads upstream
+tests; it does not choose comparisons or compute inferential results.
+See the panel-diagnostics command and its limits in docs/RUNNING.md.

@@ -56,3 +56,23 @@ or smoothing. Marginal C/G distributions use fold-specific q25–q75 boxes and
 median lines, with no whiskers, pooled fitted scales or new inference. Rendering
 uses the same authorized summary inputs; no model fitting or recalibration is
 introduced by this display change.
+
+## Release 1.5.0 post hoc diagnostic and swarm extension
+
+The panel-diagnostics command fits four calibration diagnostics and computes
+six within-fold rank comparisons in one separate ten-test BH family. It uses
+the original saved first-visit forecasts and current profile components.
+Calibration diagnostics do not alter probabilities; their uncertainty is
+conditional on saved model outputs and IPCW. Marginal clinical-course
+comparisons retain fold-specific scales and do not adjust for age, study,
+follow-up or cognitive contributions. They are exploratory, rather than tests
+of added predictive value or external validation.
+
+All individual contributions are displayed with deterministic horizontal swarm
+packing and no changes to their signed values. Private table exporters consume
+the same ten-test output used for figure annotations. These empirical inputs,
+results and individual points remain outside the public/local code folders.
+Earlier figures a–d, original prediction-model fits and inference families
+remain intact. Run the synthetic suite, the public release guard and the
+private Local input checks; do not infer cohort reconstruction from synthetic
+checks alone.

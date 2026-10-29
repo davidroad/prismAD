@@ -48,18 +48,19 @@ def _append_row(fig,old_height,new_height,number,data):
         header("e","Calibration: CN → first MCI",5,164)
         header("f","Calibration: MCI → AD",96,164)
         left=axis(29,172,56,44);right=axis(122,172,55,44)
-        a=draw(left,rows,"CN_MCI",legend=True);b=draw(right,rows,"MCI_AD",legend=False)
+        diagnostics=pd.read_csv(data/"plotting/calibration_slope_tests.csv")
+        a=draw(left,rows,"CN_MCI",legend=True,diagnostics=diagnostics);b=draw(right,rows,"MCI_AD",legend=False,diagnostics=diagnostics)
     else:
         from .marginal_panels import draw
         rows=pd.read_csv(data/"plotting/marginal_component_distributions.csv")
         header("e","Cognitive contributions",3.0368,155,56.5)
         header("f","Genetic contributions",91.0368,155,144.5)
-        left=axis(25,166,63,37);right=axis(113,166,63,37)
+        left=axis(25,166,63,52);right=axis(113,166,63,52)
         a=draw(left,rows,"C",legend=False);b=draw(right,rows,"G",legend=False)
         right.tick_params(labelleft=True)
     assert _old_axes_signature(old)==signature,"Original panels changed in data space"
     return dict(original_four_axes_signature=signature,original_data_marks_unchanged=True,
-                new_panels_descriptive_only=True,new_panel_summaries=[a,b])
+                panels_use_upstream_posthoc_diagnostics=True,inference_computed_in_renderer=False,new_panel_summaries=[a,b])
 
 def build(figure):
     data=Path(os.environ['PRISM_AD_SOURCE_DATA'])
@@ -76,7 +77,7 @@ def build(figure):
                 i=[('CN_MCI',3),('CN_MCI',5),('MCI_AD',3),('MCI_AD',5)].index((r.task,r.horizon))
                 axis=fig.axes[2 if r.metric=='weighted_AUROC'else 3]
                 axis.text(axis.get_xlim()[1]+.004,i,marker,ha='left',va='center',fontsize=7,color='#24313B',clip_on=False)
-        extension=_append_row(fig,163,228,2,data)
+        extension=_append_row(fig,163,240,2,data)
         return fig,dict(common.geometry(fig),**extension)
     if figure=='3':
         cap=_capture('overall');fig=cap['fig'];_letters(fig,3)
@@ -85,7 +86,7 @@ def build(figure):
             row=tests[tests.group.eq(group)].iloc[0]
             marker='***'if row.q<.001 else'**'if row.q<.01 else'*'if row.q<.05 else'(*)'if row.p<.05 else''
             if marker:fig.axes[i].text(.97,.94,marker,transform=fig.axes[i].transAxes,ha='right',va='top',fontsize=8)
-        extension=_append_row(fig,155,220,3,data)
+        extension=_append_row(fig,155,235,3,data)
         return fig,dict(common.geometry(fig),**extension)
     if figure=='4':
         cap=_capture('contrasts');fig=cap['fig'];_letters(fig,4)
