@@ -1,3 +1,11 @@
+# 1.4.0 — 29 October 2026
+- Add descriptive first-visit calibration and marginal contribution panels without changing existing panel data or tests.
+- Preserve full vector/raster canvas dimensions when panel helpers load style defaults.
+- Export all first-eligible CN forecast contributions to a restricted private parquet before retrospective grouping.
+- Add planned first-recorded-AD Cox and common-window score sensitivities, with endpoint-specific censoring and full assumption diagnostics.
+- Add synthetic checks for endpoint history, score units, censoring conventions, weighted summaries and fold separation.
+- Preserve all original prediction-model implementations, scientific fitting settings and controlled-output boundaries.
+
 # 1.3.0 — 29 October 2026
 - Add full-history eligibility/endpoint auditing without changing entry definitions.
 - Add within-fold genetic-factor and common-scale raw-PRS sensitivity checks.

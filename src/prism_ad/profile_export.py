@@ -2,6 +2,7 @@
 import json
 import numpy as np,pandas as pd
 from .runtime import input_path,workspace,sha
+from .publication_summaries import marginal_components
 def main():
     path=input_path('current_profile_components');original=sha(path)
     d=pd.read_csv(path)
@@ -26,6 +27,7 @@ def main():
     pd.DataFrame(rows).to_csv(out/'cognitive_decile_profiles.csv',index=False)
     pd.DataFrame(quintiles).to_csv(out/'overall_components_fold_prs_quintile_summary.csv',index=False)
     pd.DataFrame(correlations).to_csv(out/'course_component_correlations.csv',index=False)
+    marginal_components(d).to_csv(out/'marginal_component_distributions.csv',index=False)
     assert sha(path)==original
     (out/'execution.json').write_text(json.dumps(dict(input_sha256=original,
         participant_rows_exported=False,models_refitted=False,tests_performed=False),indent=2)+'\n')

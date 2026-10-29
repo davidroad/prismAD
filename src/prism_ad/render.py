@@ -21,10 +21,17 @@ def render(figure,source,output):
         if figure=='S3':
             fig.savefig(out/(stem+'.'+ext),dpi=600,metadata=meta)
         else:
-            fig.savefig(out/(stem+'.'+ext),dpi=600,bbox_inches=None,pad_inches=0,metadata=meta)
+            # A panel helper may set tight cropping through its style defaults.
+            # Preserve the declared publication canvas and the panel-letter gutters.
+            with matplotlib.rc_context({'savefig.bbox':None}):
+                fig.savefig(out/(stem+'.'+ext),dpi=600,bbox_inches=None,pad_inches=0,metadata=meta)
     plt.close(fig)
     from PIL import Image
-    image=Image.open(out/(stem+'.png'));image.thumbnail((1450,1900));image.save(out/(stem+'_preview.png'))
+    image=Image.open(out/(stem+'.png'))
+    if figure!='S3':
+        expected=fig.get_size_inches()*600
+        assert all(abs(a-b)<=1 for a,b in zip(image.size,expected)), 'Publication canvas was cropped'
+    image.thumbnail((1450,1900));image.save(out/(stem+'_preview.png'))
     versions={}
     for name in ['numpy','pandas','matplotlib','Pillow']:
         versions[name]=importlib.metadata.version(name)

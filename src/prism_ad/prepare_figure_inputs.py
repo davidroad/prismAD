@@ -45,7 +45,7 @@ for group in ["resilience_CN","CN_to_AD","other_CN_no_AD"]:
  ex={k:float(v[k])for k in ["intercept","cognition_main","PRS","other_terms"]}
  ex.update(group=group,fold=1,horizon=3,total_log_odds=float(v.risk_logit),predicted_probability=float(v.predicted_risk),distance_to_group_median=float(distance.min()))
  examples.append(ex)
-(plot/"published_forecast_examples.json").write_text(json.dumps({"examples":examples,"selection":"Nearest within-group median PRS, C and remaining terms using common fold-1 IQRs; no selection by probability.","permission_status":"Author confirmation of source-cohort publication conditions remains pending."},indent=2)+"\n")
+(plot/"published_forecast_examples.json").write_text(json.dumps({"examples":examples,"selection":"Nearest within-group median PRS, C and remaining terms using common fold-1 IQRs; no selection by probability.","permission_status":"Publication requires the applicable source-cohort permissions; code availability does not establish permission."},indent=2)+"\n")
 p=pd.read_parquet(r/"education/LOCAL_RESTRICTED/CN_stage_PET.parquet")
 cn=p[p.status.eq("CN")];ad=p[p.status.eq("AD")]
 pet={"total":len(cn),"positive":int(cn.amyloid_positive.eq(1).sum()),"negative":int(cn.amyloid_positive.eq(0).sum()),"later_AD":len(ad),"later_AD_positive":int(ad.amyloid_positive.eq(1).sum()),"median_PET_to_last_CN":float(cn.measurement_lag.median())}
@@ -74,5 +74,8 @@ summary=dict(profile_counts=raw.clinical_group.value_counts().to_dict(),targeted
 education=pd.read_csv(r/"education/results/education_descriptives.csv").to_dict("records"),
 education_tests=pd.read_csv(r/"education/results/adjusted_education_tests.csv").fillna("").to_dict("records"),
 pet_slopes=pd.read_csv(r/"pet/results/aggregate_slopes.csv").to_dict("records"))
+from .publication_summaries import pool_calibration
+shutil.copy2(table/"marginal_component_distributions.csv",plot/"marginal_component_distributions.csv")
+pool_calibration(pd.read_csv(table/"genetic_increment_calibration_first_visit.csv")).to_csv(plot/"calibration_pooled_first_visit.csv",index=False)
 (r/"audit/RESULT_SUMMARY.json").write_text(json.dumps(summary,indent=2,default=str)+"\n")
 print(json.dumps({k:v for k,v in summary.items()if k in ["profile_counts","targeted_counts","pet"]},indent=2))

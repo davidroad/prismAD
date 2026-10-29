@@ -1,11 +1,11 @@
 # PRISM-AD
 
-Release 1.3.0 (29 October 2026) adds diagnostic-history eligibility auditing
-and review-requested within-fold/raw-PRS sensitivity checks. Prediction-model
-implementations, fitted settings and the original inference families are
-unchanged from the corrected-PRS reconstruction. These new checks were executed
-privately against the saved study artifacts. They are not a new model refit or
-an independent validation.
+Release 1.4.0 (29 October 2026) adds descriptive calibration and marginal
+contribution panels, a full-first-CN forecast export for authorized private
+follow-up analyses, and a planned AD follow-up sensitivity command. The
+prediction-model implementations, fitted settings and original inference
+families are unchanged. New association regressions are separate from PRISM-AD
+training and are not external validation.
 
 Code for interpretable cognitive prognosis with explicit clinical and genetic
 contributions. PRISM-AD learns nonlinear clinical functions and retains a
@@ -89,3 +89,16 @@ The latter compares fitted genetic terms within each fitted fold and raw PRS
 on a common reference scale. It retains the original shared cognitive deciles
 and uses a separate four-comparison BH family. Raw-PRS differences are SD units,
 not disease odds ratios. See docs/RUNNING.md for execution and limitations.
+
+## Follow-up sensitivity and expanded figures
+The followup-sensitivity command constructs a first-recorded-AD endpoint from
+the first eligible CN forecasts and full subsequent diagnostic history. It fits
+the specified fold-stratified Cox working model and a censoring-weighted
+five-year raw-PRS contrast. It requires a private frozen plan and tie-convention
+amendment, authorized forecast/history inputs and R survival. All effect
+estimates and assumption diagnostics stay in private output storage.
+
+Figures 2 and 3 retain their original a–d panels. Their additional e/f panels
+use mass-weighted calibration summaries and within-fold marginal C/G medians
+and IQRs. IQRs describe participant spread; no new tests are attached to these
+descriptive panels. Fixed canvas exports preserve panel-letter gutters.

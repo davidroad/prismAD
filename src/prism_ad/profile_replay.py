@@ -98,6 +98,10 @@ for fold in [1,2,3]:
 pred=pd.concat(blocks,ignore_index=True)
 first=pred[pred.first_eligible].copy()
 assert first.subject_id.is_unique and len(first)==908
+# All first-eligible CN forecasts precede any future-course profile selection.
+# This participant-level export is restricted and never distributed as code.
+full_first=OUT/'restricted_local/first_eligible_CN_components.parquet'
+first.to_parquet(full_first,index=False);full_first.chmod(0o600)
 joined=g.merge(first,on=['subject_id','visit'],suffixes=('_group',''),how='inner',validate='one_to_one')
 alignment=joined.Study.eq(joined.study)&np.isclose(joined.cognition_age,joined.age,atol=1e-6,rtol=0)
 assert alignment.all()

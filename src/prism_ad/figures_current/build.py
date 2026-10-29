@@ -23,6 +23,43 @@ def _letters(fig,number):
         t=next(t for t in fig.texts if t.get_text()==record['panel']and t.get_fontweight()=='bold')
         x,y=record['new_letter_anchor_mm'];t.set_position((x/w,y/h))
 
+def _old_axes_signature(axes):
+    import hashlib
+    data=[dict(lines=[(np.asarray(x.get_xdata()).tolist(),np.asarray(x.get_ydata()).tolist())for x in a.lines],
+               collections=[np.ma.asarray(x.get_offsets()).filled(np.nan).tolist()for x in a.collections])for a in axes]
+    return hashlib.sha256(json.dumps(data,sort_keys=True,allow_nan=True).encode()).hexdigest()
+
+def _append_row(fig,old_height,new_height,number,data):
+    old=list(fig.axes);signature=_old_axes_signature(old)
+    common.reflow(fig,old_height,new_height,lambda y:y,set())
+    W=183.
+    def axis(x,y,w,h):
+        a=fig.add_axes([x/W,1-(y+h)/new_height,w/W,h/new_height])
+        a.spines["top"].set_visible(False);a.spines["right"].set_visible(False)
+        return a
+    def header(letter,title,x,y,center=None):
+        fig.text(x/W,1-y/new_height,letter,fontsize=10,weight="bold",va="center")
+        fig.text((x+6 if center is None else center)/W,1-y/new_height,title,
+                 fontsize=8,va="center",ha="left"if center is None else"center")
+    if number==2:
+        from .calibration_panels import draw
+        rows=pd.read_csv(data/"plotting/calibration_pooled_first_visit.csv")
+        header("e","Calibration: CN → first MCI",5,164)
+        header("f","Calibration: MCI → AD",96,164)
+        left=axis(29,174,56,39);right=axis(122,174,55,39)
+        a=draw(left,rows,"CN_MCI",legend=True);b=draw(right,rows,"MCI_AD",legend=False)
+    else:
+        from .marginal_panels import draw
+        rows=pd.read_csv(data/"plotting/marginal_component_distributions.csv")
+        header("e","Cognitive contributions",3.0368,155,56.5)
+        header("f","Genetic contributions",108.8463,155,144.5)
+        left=axis(25,166,63,37);right=axis(113,166,63,37)
+        a=draw(left,rows,"C",legend=False);b=draw(right,rows,"G",legend=False)
+        right.tick_params(labelleft=False)
+    assert _old_axes_signature(old)==signature,"Original panels changed in data space"
+    return dict(original_four_axes_signature=signature,original_data_marks_unchanged=True,
+                new_panels_descriptive_only=True,new_panel_summaries=[a,b])
+
 def build(figure):
     data=Path(os.environ['PRISM_AD_SOURCE_DATA'])
     if figure=='1':
@@ -38,7 +75,8 @@ def build(figure):
                 i=[('CN_MCI',3),('CN_MCI',5),('MCI_AD',3),('MCI_AD',5)].index((r.task,r.horizon))
                 axis=fig.axes[2 if r.metric=='weighted_AUROC'else 3]
                 axis.text(axis.get_xlim()[1]+.004,i,marker,ha='left',va='center',fontsize=7,color='#24313B',clip_on=False)
-        return fig,common.geometry(fig)
+        extension=_append_row(fig,163,228,2,data)
+        return fig,dict(common.geometry(fig),**extension)
     if figure=='3':
         cap=_capture('overall');fig=cap['fig'];_letters(fig,3)
         tests=pd.read_csv(data/'plotting/Figure3_cognitive_quintile_omnibus_tests.csv')
@@ -46,7 +84,8 @@ def build(figure):
             row=tests[tests.group.eq(group)].iloc[0]
             marker='***'if row.q<.001 else'**'if row.q<.01 else'*'if row.q<.05 else'(*)'if row.p<.05 else''
             if marker:fig.axes[i].text(.97,.94,marker,transform=fig.axes[i].transAxes,ha='right',va='top',fontsize=8)
-        return fig,common.geometry(fig)
+        extension=_append_row(fig,155,220,3,data)
+        return fig,dict(common.geometry(fig),**extension)
     if figure=='4':
         cap=_capture('contrasts');fig=cap['fig'];_letters(fig,4)
         # The native contrast renderer annotates current q/P values.

@@ -31,3 +31,13 @@ fresh complete run. Synthetic tests validate defined behaviors; private
 execution against study artifacts is recorded separately. Earlier development
 had already inspected evaluation folds, so fixed refitting does not make them
 an untouched test set.
+
+
+## Release 1.4.0 figure and follow-up extension
+The model core is unchanged. The full-first-CN export precedes retrospective
+profile exclusions. New panel summaries are descriptive and preserve native
+fold scales. Follow-up sensitivity fits additional association regressions under
+a private frozen plan, with full proportional-hazards/censoring diagnostics.
+No assumption check is a guarantee that ascertainment or external validity has
+been resolved. The public release includes code and synthetic tests, not the
+private empirical estimates or full-first-CN ledger.

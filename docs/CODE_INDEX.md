@@ -18,6 +18,9 @@ adds an author-side server-path index and configuration references.
 | Frozen-checkpoint profile replay | src/prism_ad/profile_replay.py |
 | Shared-cognition-strata inference | src/prism_ad/cognitive_strata.py |
 | Diagnostic-history and endpoint audit | src/prism_ad/eligibility_audit.py |
+| Descriptive publication summaries | src/prism_ad/publication_summaries.py |
+| First-AD follow-up sensitivity | src/prism_ad/followup_sensitivity.py |
+| New calibration/marginal panels | src/prism_ad/figures_current/calibration_panels.py; marginal_panels.py |
 | Within-fold and raw-PRS sensitivity | src/prism_ad/model_scale_checks.py |
 | Registered PRS and quintile tests | src/prism_ad/current_statistics.py |
 | Summary export for private analysis | src/prism_ad/profile_export.py; export_metrics.py |

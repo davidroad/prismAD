@@ -24,10 +24,10 @@ and point every configuration role to the corresponding fresh output:
 6. metrics --bootstrap -> work/prediction.
 7. paired-inference -> work/paired; genetic-comparison -> work/genetic.
 8. interpret -> work/interpretation; education -> work/education; pet -> work/pet.
-9. profile-replay -> work/profiles.
+9. profile-replay -> work/profiles, including the full first-eligible CN ledger.
 10. export -> work/SourceData; profile-export -> work/SourceData/tables.
 11. current-statistics -> work/statistics; cognitive-strata -> work/cognitive_strata.
-12. model-scale-checks -> work/model_scale, then figure-inputs -> work/SourceData.
+12. model-scale-checks -> work/model_scale; followup-sensitivity -> work/followup; then figure-inputs -> work/SourceData.
 13. learning-curve-replay -> work/optimization. Copy its learning_curves.csv and
     passing replay_verification.json into work/SourceData/optimization.
 14. render --figure all --source-data work/SourceData --output work/Figures.
@@ -94,3 +94,32 @@ All diagnostic outputs, including aggregate CSV/JSON, are controlled derivatives
 Keep them outside code packages and Git repositories. The Local table exporter
 can append the model-scale results to publication Table 10 in a private article
 build. No generated empirical results belong in this repository.
+
+## Follow-up endpoint and frozen plan
+Configure first_CN_components from the restricted full-first-CN parquet written
+by profile-replay. Configure followup_analysis_plan and
+followup_plan_amendment to authorized private method records. These are not
+bundled cohort artifacts. The Local file index names their server locations.
+The amendment binds the plan hash and the inclusive-horizon left-limit
+censoring convention. Supply execution.survival_Rscript with R survival installed.
+
+    python -m prism_ad followup-sensitivity --config /PRIVATE_CONFIG.json --output /PRIVATE_NEW_FOLLOWUP
+
+The command uses all eligible first-CN entries, without future clinical-course
+selection. First AD is terminal even if a later assessment reverts, while MCI
+is intermediate. A first undated AD stops follow-up at the preceding dated
+non-AD assessment. A new AD-specific reverse-Kaplan--Meier censoring model is
+used for the five-year comparison. Original first-MCI weights are not reused.
+
+The Cox analysis uses R survival Efron ties, its default near-tie correction and
+robust sandwich inference. Report the rank-time PH diagnostics together with
+the working-model estimate. A nonsignificant term-specific diagnostic does not
+establish proportional hazards. The five-year WLS effect is a raw-score SD
+difference, not clinical odds. Keep the two-test BH family separate from the
+original families, and retain unavailable outcomes as unknown rather than controls.
+Do not select an alternative model to obtain a favorable result.
+
+All ledgers, CSVs, diagnostics, regression artifacts, source hashes and private
+plans remain outside Public/Local and all Git repositories. Reconstructing this
+analysis does not establish external validation, competing-risk AD incidence,
+biological onset or diagnostic lead time.

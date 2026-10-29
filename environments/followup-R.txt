@@ -1,0 +1,7 @@
+Follow-up association and proportional-hazards diagnostics
+R 4.5.3
+survival 3.8.9
+
+Provide the authorized local Rscript under execution.survival_Rscript.
+The original PRS R environment need not contain survival.
+No clinical input, result, fitted model or private path is supplied here.
