@@ -16,7 +16,7 @@ complete orchestration entry point. For manual execution, keep this exact graph
 and point every configuration role to the corresponding fresh output:
 
 1. features -> work/prediction; groups -> work/groups.
-2. train --preflight -> work/prediction.
+2. eligibility-audit -> work/eligibility_audit, then train --preflight -> work/prediction.
 3. train both clinical tasks -> work/prediction.
 4. Create work/no_prs/LOCAL_RESTRICTED and copy the successful same-environment
    PREFLIGHT.json to work/no_prs, or run its preflight.
@@ -27,7 +27,7 @@ and point every configuration role to the corresponding fresh output:
 9. profile-replay -> work/profiles.
 10. export -> work/SourceData; profile-export -> work/SourceData/tables.
 11. current-statistics -> work/statistics; cognitive-strata -> work/cognitive_strata.
-12. figure-inputs -> work/SourceData.
+12. model-scale-checks -> work/model_scale, then figure-inputs -> work/SourceData.
 13. learning-curve-replay -> work/optimization. Copy its learning_curves.csv and
     passing replay_verification.json into work/SourceData/optimization.
 14. render --figure all --source-data work/SourceData --output work/Figures.
@@ -68,3 +68,29 @@ generated tables, receipts or underlying summaries.
 For a code/documentation synchronization, run the public release guard and
 synthetic checks, then the Local file verifier and input check. This verifies
 the synchronized release without claiming a new raw-data or model rerun.
+
+## Eligibility and model-scale diagnostics (v1.3.0)
+
+    python -m prism_ad eligibility-audit --config /PRIVATE_CONFIG.json --output /PRIVATE_NEW_AUDIT
+    python -m prism_ad model-scale-checks --config /PRIVATE_CONFIG.json --output /PRIVATE_NEW_SCALE
+
+Run eligibility-audit after features and groups have created metadata and course
+indices. It checks all saved risk visits against the full original history,
+reconstructs target/competing-event outcomes and reports aggregate accounting.
+An AD record after prediction followed by CN or MCI does not itself invalidate
+entry. The retrospective profile sample has additional linkage and course rules.
+
+Run model-scale-checks after profile-replay and cognitive-strata. It consumes
+current_profile_components, profile_join_keys and genotype_roster. Within-fold
+G contrasts use continuous C and the common C deciles. The pooled raw-PRS
+contrast also adjusts for fold. The reference is the complete configured
+genotype roster mean and population SD (ddof=0). HC3 residual-df t inference and
+a separate four-test BH family leave the original twelve-test family unchanged.
+These post hoc checks reuse fitted C, participants and overlapping development
+samples. They neither align every fitted contribution nor provide independent
+genetic evidence, fixed-horizon AD incidence estimates or external validation.
+
+All diagnostic outputs, including aggregate CSV/JSON, are controlled derivatives.
+Keep them outside code packages and Git repositories. The Local table exporter
+can append the model-scale results to publication Table 10 in a private article
+build. No generated empirical results belong in this repository.

@@ -17,6 +17,8 @@ adds an author-side server-path index and configuration references.
 | Cognitive/genetic contribution accounting | src/prism_ad/contributions.py; interpret.py |
 | Frozen-checkpoint profile replay | src/prism_ad/profile_replay.py |
 | Shared-cognition-strata inference | src/prism_ad/cognitive_strata.py |
+| Diagnostic-history and endpoint audit | src/prism_ad/eligibility_audit.py |
+| Within-fold and raw-PRS sensitivity | src/prism_ad/model_scale_checks.py |
 | Registered PRS and quintile tests | src/prism_ad/current_statistics.py |
 | Summary export for private analysis | src/prism_ad/profile_export.py; export_metrics.py |
 | Education and amyloid PET | src/prism_ad/education.py; biomarkers.py; pet.py |

@@ -1,8 +1,11 @@
 # PRISM-AD
 
-Release 1.2.1 (26 October 2026) aligns documentation with the final manuscript
-and supplementary reporting. The scientific implementations and fitting settings
-are unchanged from the corrected-PRS reconstruction.
+Release 1.3.0 (29 October 2026) adds diagnostic-history eligibility auditing
+and review-requested within-fold/raw-PRS sensitivity checks. Prediction-model
+implementations, fitted settings and the original inference families are
+unchanged from the corrected-PRS reconstruction. These new checks were executed
+privately against the saved study artifacts. They are not a new model refit or
+an independent validation.
 
 Code for interpretable cognitive prognosis with explicit clinical and genetic
 contributions. PRISM-AD learns nonlinear clinical functions and retains a
@@ -77,3 +80,12 @@ The final reporting helpers were executed and reconciled with the manuscript
 separately from the public synthetic checks. A documentation update does not
 require rerunning the unchanged model grid. Use the complete private refit only
 when intentionally reproducing or changing the authorized inputs or analysis.
+
+## Review-requested checks
+The commands eligibility-audit and model-scale-checks require authorized
+external inputs and private external output directories. The former replays
+entry eligibility and endpoint construction against full diagnostic histories.
+The latter compares fitted genetic terms within each fitted fold and raw PRS
+on a common reference scale. It retains the original shared cognitive deciles
+and uses a separate four-comparison BH family. Raw-PRS differences are SD units,
+not disease odds ratios. See docs/RUNNING.md for execution and limitations.

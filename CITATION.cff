@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: "Please cite the accompanying PRISM-AD manuscript when using this code."
 title: "PRISM-AD quantifies clinical and genetic contributions to cognitive risk prediction"
 type: software
-version: 1.2.1
-date-released: 2026-10-26
+version: 1.3.0
+date-released: 2026-10-29
 authors:
   - family-names: Dai
     given-names: Yulin

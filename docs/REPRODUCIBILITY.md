@@ -21,3 +21,13 @@ reporting helpers were checked against the final supplementary tables.
 Current Public and Local Code directories must be byte-identical to the same
 published commit. The complete author package records that commit and the
 private input identities without publishing the inputs.
+
+
+## Release 1.3.0 diagnostic extension
+The two added commands audit existing entry/outcome records and fitted-term
+comparisons. They do not modify the prediction model or reproduce the entire
+raw-data pipeline by themselves. The Local runner includes both steps in a
+fresh complete run. Synthetic tests validate defined behaviors; private
+execution against study artifacts is recorded separately. Earlier development
+had already inspected evaluation folds, so fixed refitting does not make them
+an untouched test set.

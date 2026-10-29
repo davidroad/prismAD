@@ -8,7 +8,7 @@ def main():
     a=sub.add_parser('render');a.add_argument('--figure',choices=['1','2','3','4','5','S1','S2','S3','all'],default='all')
     a.add_argument('--source-data',type=Path,required=True);a.add_argument('--output',type=Path,required=True)
     a=sub.add_parser('verify-source-data');a.add_argument('--data',type=Path,required=True)
-    for name in ['features','groups','train','metrics','paired-inference','genetic-comparison','interpret','education','pet','export','profile-replay','profile-export','current-statistics','cognitive-strata','learning-curve-replay','figure-inputs']:
+    for name in ['features','groups','train','metrics','paired-inference','genetic-comparison','interpret','education','pet','export','profile-replay','profile-export','current-statistics','cognitive-strata','learning-curve-replay','figure-inputs','eligibility-audit','model-scale-checks']:
         a=sub.add_parser(name);a.add_argument('--config',type=Path,required=True);a.add_argument('--output',type=Path,required=True)
         if name=='train':
             a.add_argument('--task',choices=['CN_MCI','MCI_AD']);a.add_argument('--preflight',action='store_true')
@@ -42,7 +42,7 @@ def main():
             'paired-inference':'paired_inference','genetic-comparison':'genetic_metrics',
             'interpret':'interpret','education':'education','pet':'pet','export':'export_metrics','profile-replay':'profile_replay',
             'profile-export':'profile_export','current-statistics':'current_statistics',
-            'cognitive-strata':'cognitive_strata','learning-curve-replay':'learning_curve_replay','figure-inputs':'prepare_figure_inputs'}[args.command]
+            'cognitive-strata':'cognitive_strata','learning-curve-replay':'learning_curve_replay','figure-inputs':'prepare_figure_inputs','eligibility-audit':'eligibility_audit','model-scale-checks':'model_scale_checks'}[args.command]
     argv=[sys.executable,'-m','prism_ad.'+target]
     if args.command=='train':
         if not args.preflight and not args.task:p.error('train requires --task or --preflight')

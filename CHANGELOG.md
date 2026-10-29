@@ -1,3 +1,10 @@
+# 1.3.0 — 29 October 2026
+- Add full-history eligibility/endpoint auditing without changing entry definitions.
+- Add within-fold genetic-factor and common-scale raw-PRS sensitivity checks.
+- Add synthetic checks for post-entry reversion, entry exclusion, affine PRS scaling and private outputs.
+- Keep the original prediction-model implementations, fits, outcome definitions and inferential families unchanged.
+- Keep all empirical inputs, diagnostic results and model artifacts outside the public release.
+
 # 1.2.1 — 26 October 2026
 - Align release documentation with the final main-text and supplementary reporting.
 - Clarify the checked-file replay and complete private refit modes.
