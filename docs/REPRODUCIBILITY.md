@@ -48,3 +48,11 @@ Current supplementary exports follow first citation in the manuscript. S1 is
 optimization, S2 age and S3 PRS increments. Table display numbers are mapped
 from stable scientific output identifiers in publication_numbering.py. This
 reporting change preserves the fitted models, calculations and test families.
+
+## Release 1.4.2 descriptive panel graphics
+
+Calibration is drawn as separate three-/five-year bin markers without connecting
+or smoothing. Marginal C/G distributions use fold-specific q25–q75 boxes and
+median lines, with no whiskers, pooled fitted scales or new inference. Rendering
+uses the same authorized summary inputs; no model fitting or recalibration is
+introduced by this display change.

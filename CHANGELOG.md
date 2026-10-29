@@ -1,3 +1,10 @@
+# 1.4.2 — 29 October 2026
+
+- Refine descriptive calibration and marginal-contribution panel graphics.
+- Preserve all calibration-bin coordinates, fold-specific quartiles and
+  original a–d panels. No new tests, recalibration or model fitting.
+- Keep empirical plotting inputs and outputs in authorized private storage.
+
 # 1.4.1 — 29 October 2026
 
 - Align supplementary figure and table publication numbers with first citation

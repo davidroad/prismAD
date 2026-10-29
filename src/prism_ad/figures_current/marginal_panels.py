@@ -1,11 +1,13 @@
 """Fold-specific marginal distributions of fitted cognitive/genetic terms.
 
 The renderer consumes aggregate medians and quartiles, never participant rows.
-Ranges represent participant interquartile spread, not inferential intervals.
+Boxes represent participant interquartile spread, not inferential intervals.
 """
 import numpy as np
 import pandas as pd
 from matplotlib.lines import Line2D
+from matplotlib.patches import Rectangle
+from matplotlib.colors import to_rgba
 from matplotlib.ticker import MaxNLocator
 
 from .style import apply_figure_style, set_frame
@@ -14,7 +16,7 @@ from .style import apply_figure_style, set_frame
 COLORS = {"C": "#D8892B", "G": "#7656A4"}
 GROUPS = (("CN", "Last CN"), ("MCI", "Last MCI"), ("AD", "Later AD"))
 FOLD_STYLES = {1: "-", 2: "--", 3: ":"}
-FOLD_OFFSETS = {1: -0.20, 2: 0.0, 3: 0.20}
+FOLD_OFFSETS = {1: -0.22, 2: 0.0, 3: 0.22}
 REQUIRED = {"component", "clinical_group", "fold", "n", "median", "q25", "q75"}
 
 
@@ -43,56 +45,52 @@ def _validated(rows, component):
 
 
 def draw(ax, rows, component, legend=False):
-    """Draw one panel of fold-specific medians and interquartile ranges.
+    """Draw native signed terms as fold-specific quartile boxes.
 
-    ax is a publication-sized axes. The caller supplies the title/panel letter.
-    rows has component, clinical_group, fold, n, median, q25 and q75 columns.
-    Each C/G panel requires CN, MCI and AD summaries for folds 1, 2 and 3.
-    No exponentiation, recentering or pooling of the native terms is performed.
-    A shared figure fold key is preferred when already supplied by the caller.
+    Boxes extend only from q25 to q75, with the median drawn inside. Whiskers,
+    extrema, outliers and participant observations are not supplied or inferred.
+    The caller supplies the panel title and letter.
     """
     apply_figure_style(font="Nimbus Sans", sizes=(8, 7, 6.5), grid=False)
     data = _validated(rows, component)
     set_frame(ax, "open")
     color = COLORS[component]
-    marker = "o" if component == "C" else "s"
+    width = 0.17
     counts = {}
     for group_i, (group, _) in enumerate(GROUPS):
         counts[group] = {}
         for fold in FOLD_STYLES:
             row = data.loc[data.clinical_group.eq(group) & data.fold.eq(fold)].iloc[0]
-            y = group_i + FOLD_OFFSETS[fold]
-            ax.plot([row.q25, row.q75], [y, y], color=color,
-                    linestyle=FOLD_STYLES[fold], linewidth=1.15,
-                    solid_capstyle="butt", dash_capstyle="round", zorder=2)
-            # End caps keep the quartile range legible when a dash is short.
-            for x in (row.q25, row.q75):
-                ax.plot([x, x], [y - 0.045, y + 0.045], color=color,
-                        linewidth=0.65, solid_capstyle="butt", zorder=2)
-            ax.plot(row["median"], y, marker=marker, linestyle="None",
-                    markersize=3.6, markerfacecolor=color, markeredgecolor="white",
-                    markeredgewidth=0.35, zorder=3)
+            center = group_i + FOLD_OFFSETS[fold]
+            left = center - width / 2
+            box = Rectangle((left, row.q25), width, row.q75 - row.q25,
+                            facecolor=to_rgba(color, 0.17), edgecolor=color,
+                            linewidth=0.9, linestyle=FOLD_STYLES[fold], zorder=2)
+            box.set_joinstyle("miter")
+            ax.add_patch(box)
+            ax.plot([left, left + width], [row["median"], row["median"]],
+                    color=color, linewidth=1.35, solid_capstyle="butt", zorder=3)
             counts[group][str(fold)] = int(row.n)
 
     low, high = float(data.q25.min()), float(data.q75.max())
     span = high - low
-    pad = 0.07 * span if span > 0 else max(abs(low) * 0.07, 0.05)
-    ax.set_xlim(low - pad, high + pad)
+    pad = 0.09 * span if span > 0 else max(abs(low) * 0.09, 0.05)
+    ax.set_ylim(low - pad, high + pad)
     zero_reference = low <= 0 <= high
     if zero_reference:
-        ax.axvline(0, color="#A6AFB5", linewidth=0.6, linestyle=":", zorder=0)
-    ax.set_ylim(len(GROUPS) - 0.46, -0.46)
-    ax.set_yticks(range(len(GROUPS)))
-    ax.set_yticklabels([label for _, label in GROUPS])
-    ax.tick_params(axis="y", length=0, pad=3, labelsize=6.5)
-    ax.tick_params(axis="x", labelsize=6.5, pad=2)
-    ax.xaxis.set_major_locator(MaxNLocator(nbins=4))
-    ax.set_xlabel(("Cognitive" if component == "C" else "Genetic")
+        ax.axhline(0, color="#A6AFB5", linewidth=0.6, linestyle=":", zorder=0)
+    ax.set_xlim(-0.50, len(GROUPS) - 0.50)
+    ax.set_xticks(range(len(GROUPS)))
+    ax.set_xticklabels([label for _, label in GROUPS])
+    ax.tick_params(axis="x", length=0, pad=3, labelsize=6.5, labelbottom=True)
+    ax.tick_params(axis="y", labelsize=6.5, pad=2, labelleft=True)
+    ax.yaxis.set_major_locator(MaxNLocator(nbins=4))
+    ax.set_ylabel(("Cognitive" if component == "C" else "Genetic")
                   + " contribution, " + component + "\n(log-odds)",
                   fontsize=8, labelpad=4)
-    ax.set_ylabel("")
+    ax.set_xlabel("Later clinical course", fontsize=8, labelpad=4)
     if legend:
-        handles = [Line2D([], [], color="#65717E", linewidth=1.15,
+        handles = [Line2D([], [], color="#65717E", linewidth=0.9,
                           linestyle=style, label="Fold " + str(fold))
                    for fold, style in FOLD_STYLES.items()]
         ax.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, 1.03),
@@ -100,6 +98,9 @@ def draw(ax, rows, component, legend=False):
                   handletextpad=0.4, columnspacing=1.0, borderaxespad=0)
     return {"component": component, "summary_rows": len(data),
             "participant_count": int(data.n.sum()), "fold_group_support": counts,
+            "display": "q25-to-q75 boxes with median lines",
             "interval": "participant interquartile range, not confidence interval",
+            "no_whiskers_or_outliers": True,
+            "fold_order_within_course": [1, 2, 3],
             "native_scale_retained": True, "pooled_across_folds": False,
             "zero_reference": zero_reference, "new_inference": False}

@@ -47,16 +47,16 @@ def _append_row(fig,old_height,new_height,number,data):
         rows=pd.read_csv(data/"plotting/calibration_pooled_first_visit.csv")
         header("e","Calibration: CN → first MCI",5,164)
         header("f","Calibration: MCI → AD",96,164)
-        left=axis(29,174,56,39);right=axis(122,174,55,39)
+        left=axis(29,172,56,44);right=axis(122,172,55,44)
         a=draw(left,rows,"CN_MCI",legend=True);b=draw(right,rows,"MCI_AD",legend=False)
     else:
         from .marginal_panels import draw
         rows=pd.read_csv(data/"plotting/marginal_component_distributions.csv")
         header("e","Cognitive contributions",3.0368,155,56.5)
-        header("f","Genetic contributions",108.8463,155,144.5)
+        header("f","Genetic contributions",91.0368,155,144.5)
         left=axis(25,166,63,37);right=axis(113,166,63,37)
         a=draw(left,rows,"C",legend=False);b=draw(right,rows,"G",legend=False)
-        right.tick_params(labelleft=False)
+        right.tick_params(labelleft=True)
     assert _old_axes_signature(old)==signature,"Original panels changed in data space"
     return dict(original_four_axes_signature=signature,original_data_marks_unchanged=True,
                 new_panels_descriptive_only=True,new_panel_summaries=[a,b])

@@ -1,10 +1,13 @@
 # PRISM-AD
 
-Release 1.4.1 (29 October 2026) aligns supplementary figure and table exports
-with first-citation order in the manuscript. Supplementary figures now show
-optimization curves (S1), age distributions (S2) and PRS increments (S3).
-Prediction models, fitted settings, scientific results and inference families
-are unchanged.
+Release 1.4.2 (29 October 2026) refines the descriptive calibration and
+marginal-contribution panels. The same private bin coordinates and fold-specific
+quartiles are retained. Scientific calculations, model fits, inference and
+supplementary numbering remain unchanged.
+
+Release 1.4.1 aligned supplementary exports with manuscript first-citation
+order. Supplementary figures show optimization curves (S1), age distributions
+(S2) and PRS increments (S3).
 
 Release 1.4.0 added descriptive calibration and marginal-contribution panels,
 a full-first-CN forecast export for authorized private follow-up analyses, and

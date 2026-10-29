@@ -58,12 +58,12 @@ def _curve(frame):
 
 
 def draw(ax, rows, task, legend=False):
-    """Draw one transition; the compositor supplies its title and letter.
+    """Draw binned calibration points; the compositor supplies title/letter.
 
-    Input rows are fixed risk bins pooled over fitted folds by IPCW mass.
-    Prediction and observed are weighted means, rather than crude fractions.
-    The caller keeps these empirical rows private.
+    The coordinates retain the original IPCW-weighted bin means. Unsupported
+    bins are omitted, and no connecting line implies interpolation across bins.
     """
+    from matplotlib.lines import Line2D
     missing = _REQUIRED.difference(rows.columns)
     if missing:
         raise ValueError("Missing pooled calibration columns: " + ", ".join(sorted(missing)))
@@ -71,32 +71,49 @@ def draw(ax, rows, task, legend=False):
         raise ValueError("Unrecognized clinical transition")
     apply_figure_style(font="Nimbus Sans", sizes=(8, 7, 6.5), grid=False)
     plt.rcParams["savefig.bbox"] = None
-    diagonal, = ax.plot([0, 1], [0, 1], color=_GREY, lw=0.7, ls=":",
-                        label="Identity", zorder=0)
+    reference_color = "#ABB6BF"
+    colors = {3: _TEAL, 5: "#597C9B"}
+    diagonal, = ax.plot([0, 1], [0, 1], color=reference_color, lw=0.7,
+                        ls="-", label="Ideal", zorder=0)
     handles, support = [], {}
-    for horizon, marker, linestyle in _HORIZONS:
+    for horizon, marker, _ in _HORIZONS:
         z = rows[rows.task.eq(task) & rows.horizon.eq(horizon)]
         if z.empty:
             raise ValueError("Both three- and five-year calibration bins are required")
         x, y, counts = _curve(z)
-        curve, = ax.plot(x, y, color=_TEAL, lw=0.95, ls=linestyle, marker=marker,
-                         ms=3.2, mew=0.7, mec=_TEAL,
-                         mfc=_TEAL if horizon == 3 else "white",
-                         label=str(horizon) + " years", zorder=3)
-        handles.append(curve); support[str(horizon)] = counts
+        valid = np.isfinite(x) & np.isfinite(y)
+        color = colors[horizon]
+        area = 17.5 if horizon == 3 else 22.0
+        face = color if horizon == 3 else "white"
+        edge = "white" if horizon == 3 else color
+        ax.scatter(x[valid], y[valid], s=area, marker=marker,
+                   facecolors=face, edgecolors=edge,
+                   linewidths=0.35 if horizon == 3 else 0.85,
+                   zorder=4 if horizon == 3 else 3)
+        handles.append(Line2D(
+            [], [], marker=marker, linestyle="None", color=color,
+            markersize=np.sqrt(area), markerfacecolor=face,
+            markeredgecolor=edge, markeredgewidth=0.35 if horizon == 3 else 0.85,
+            label=str(horizon) + " years"))
+        support[str(horizon)] = counts
     ax.set(xlim=(0, 1), ylim=(0, 1), xticks=[0, 0.5, 1],
            yticks=[0, 0.5, 1], xlabel="Mean predicted risk",
            ylabel="Observed event fraction")
-    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
     ax.tick_params(direction="out", labelsize=6.5, length=2.5, width=0.6)
     if legend:
         ax.legend(handles=handles + [diagonal], loc="upper left",
-                  fontsize=7, frameon=False, handlelength=1.7,
-                  handletextpad=0.5, borderaxespad=0.5, labelspacing=0.35)
+                  fontsize=7, frameon=False, handlelength=1.3,
+                  handletextpad=0.5, borderaxespad=0.5, labelspacing=0.4)
     return {
         "task": task, "summary": "IPCW mass-weighted first-visit calibration bins",
+        "display": "binned calibration scatter with no connecting lines",
         "minimum_known_outcomes_per_visible_bin": 5,
-        "curve_connections": "Only adjacent supported bins are connected",
+        "curve_connections": "None; no interpolation or smoothing",
+        "unsupported_bin_gaps_retained": True,
+        "horizon_colors": {str(k): v for k, v in colors.items()},
+        "marker_sizes_encode_support": False,
         "support": support, "confidence_intervals": False,
         "recalibration_fitted": False, "hypothesis_tests_added": False,
     }
